@@ -11,6 +11,7 @@
 
 #include "DXUT.h"
 #include <vector>
+#include <fstream>
 
 // ------------------------------------------------------------------------------
 
@@ -63,13 +64,13 @@ private:
     Mesh* curvesMesh; //Geometria das curvas
     uint curvesCount = 0; //Quantidade de curvas no vetor
     static const uint curvesPoints = 20; //Quantidade de pontos para fazer a curva
-    int amount = 400;
-    Vertex* curves;
+    int amount = 400; //Tamanho inicial do vetor
+    Vertex* curves; //Vetor dinamico
     //std::vector<Vertex> curves; //vetor de curvas
     Point pointsLocation[4]{}; //Pontos do clique
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /*AREA QUE CUIDA DOS PONTOS DE CONTROLE*/
+    /*AREA QUE CUIDA DOS PONTOS DE CONTROLE DESENHANDOS NA TELA*/
     Mesh* pointsMesh; //Geometria pontos de controle
     static const uint ctrlCount = 4; //Quantidade de vertices de controle;
     Vertex points[ctrlCount][VertexCount];
@@ -106,8 +107,6 @@ float Curves::Bernstein(float num, float p1, float p2, float p3, float p4) {
         + 3 * (num * num) * (1 - num) * p3 + (num * num * num) * p4;
 }
 
-
-
 void Curves::Init()
 {
     graphics->ResetCommands();
@@ -127,12 +126,10 @@ void Curves::Init()
     //Vetor dinamico de curvas
     curves = new Vertex[amount];
 
-    
     BuildRootSignature();
     BuildPipelineState();
 
     // -----------------------
-
     graphics->SubmitCommands();
 }
 
@@ -156,10 +153,11 @@ void Curves::Update()
     if (pointsCount == 4) {
         //"Excluindo" primeiros dois pontos e mantendo somente os dois ultimos
      
-        points[0]->Pos = points[3]->Pos;
         for (int i{}; i < VertexCount; i++) {
             points[1][i].Pos.x = points[3][i].Pos.x + (points[3][i].Pos.x - points[2][i].Pos.x);
             points[1][i].Pos.y = points[3][i].Pos.y + (points[3][i].Pos.y - points[2][i].Pos.y);
+            points[0][i].Pos.x = points[3][i].Pos.x;
+            points[0][i].Pos.y = points[3][i].Pos.y;
         }
 
         //"Excluindo" as primeiras duas linhas e mantendo somente as duas ultimas e também continuando ela com a formula p4 = p4 + (p4-p3);
@@ -192,7 +190,6 @@ void Curves::Update()
                 int newAmount = amount * 2;
                 Vertex* aux = new Vertex[newAmount];
                 
-
                 for (int i{}; i < curvesCount; i++) {
                     aux[i] = curves[i]; //Copiando;
                 }
@@ -308,7 +305,6 @@ void Curves::Update()
         pointsCount = 0;
         curvesCount = 0;
         delete[] curves;
-
         curves = new Vertex[amount];
 
         //Mandando comandos de desenho para o buffer
@@ -328,6 +324,112 @@ void Curves::Update()
     // sai com o pressionamento da tecla ESC
     if (input->KeyPress(VK_ESCAPE))
         window->Close();
+
+    //Salvar dados em arquivo
+    if (input->KeyPress('s') || input->KeyPress('S')) {
+         std::ofstream arquivo("savedata.bin", std::ios::binary);
+
+         if (arquivo.is_open()) {
+
+             arquivo.write(reinterpret_cast<const char*>(&amount), sizeof(int)); //Escreve tamanho atual do vetor;
+             arquivo.write(reinterpret_cast<const char*>(&curvesCount), sizeof(int)); //Escreve quantidade de curvas no vetor;
+             
+
+             for (int i{}; i < ctrlCount; i++) {
+                 arquivo.write(reinterpret_cast<const char*>(&lines[i]), sizeof(Vertex));  //Escreve linhas no arquivo;
+             }
+
+             arquivo.write(reinterpret_cast<const char*>(&pointsCount), sizeof(int)); //Escreve quantidade de pontos atuais;
+
+             for (int i{}; i < ctrlCount; i++) {
+                 for (int j{}; j < VertexCount; j++) {
+                    arquivo.write(reinterpret_cast<const char*>(&points[i][j]), sizeof(Vertex));  //Escreve pontos
+                 }
+             }
+
+             for (int i{}; i < ctrlCount; i++) {
+                 arquivo.write(reinterpret_cast<const char*>(&pointsLocation[i]), sizeof(Point));  //Escreve localização dos pontos
+             }
+
+
+             for (int i{}; i < 2; i++) {
+                 arquivo.write(reinterpret_cast<const char*>(&linee[i]), sizeof(Vertex));  //Escreve localização dos pontos
+             }
+
+             for (int i{}; i < curvesCount; i++) {
+                 arquivo.write(reinterpret_cast<const char*>(&curves[i]), sizeof(Vertex)); //Escreve curvas;
+             }
+
+             arquivo.close();
+         }
+    }
+
+    //Carregar dados do arquivo
+    if (input->KeyPress('l') || input->KeyPress('L')) {
+        std::ifstream arquivo("savedata.bin", std::ios::binary);
+
+        if (arquivo) {
+            int i = 0;
+
+            // Leitura da quantidade total de curvas e inicialização do vetor de curvas
+            arquivo.read(reinterpret_cast<char*>(&amount), sizeof(int));
+            curves = new Vertex[amount];
+
+            // Leitura da quantidade de curvas ativas
+            arquivo.read(reinterpret_cast<char*>(&curvesCount), sizeof(int));
+
+            // Leitura das linhas de controle
+            for (i = 0; i < ctrlCount; i++) {
+                arquivo.read(reinterpret_cast<char*>(&lines[i]), sizeof(Vertex));
+            }
+
+            // Leitura da quantidade de pontos
+            arquivo.read(reinterpret_cast<char*>(&pointsCount), sizeof(int));
+
+            // Leitura dos pontos
+            for (i = 0; i < ctrlCount; i++) {
+                for (int j = 0; j < VertexCount; j++) {
+                    arquivo.read(reinterpret_cast<char*>(&points[i][j]), sizeof(Vertex));
+                }
+            }
+
+            // Leitura das localizações dos pontos
+            for (i = 0; i < ctrlCount; i++) {
+                arquivo.read(reinterpret_cast<char*>(&pointsLocation[i]), sizeof(Point));
+            }
+
+            for (int i{}; i < 2; i++) {
+                arquivo.read(reinterpret_cast<char*>(&linee[i]), sizeof(Vertex));  //Escreve localização dos pontos
+            }
+
+            // Leitura das curvas
+            for (i = 0; i < curvesCount; i++) {
+                arquivo.read(reinterpret_cast<char*>(&curves[i]), sizeof(Vertex));
+            }
+
+            curvesMesh = new Mesh(&curves, (amount * sizeof(Vertex)), sizeof(Vertex));
+
+            arquivo.close();
+
+            //Mandando comandos de desenho para o buffer
+            graphics->ResetCommands();
+            graphics->Copy(points, pointsMesh->vertexBufferSize, pointsMesh->vertexBufferUpload, pointsMesh->vertexBufferGPU);
+            graphics->SubmitCommands();
+
+            graphics->ResetCommands();
+            graphics->Copy(lines, linesMesh->vertexBufferSize, linesMesh->vertexBufferUpload, linesMesh->vertexBufferGPU);
+            graphics->SubmitCommands();
+
+            graphics->ResetCommands();
+            graphics->Copy(curves, curvesMesh->vertexBufferSize, curvesMesh->vertexBufferUpload, curvesMesh->vertexBufferGPU);
+            graphics->SubmitCommands();
+
+            graphics->ResetCommands();
+            graphics->Copy(linee, lineMesh->vertexBufferSize, lineMesh->vertexBufferUpload, lineMesh->vertexBufferGPU);
+            graphics->SubmitCommands();
+
+        }
+    }  
 
     Display();
 }
