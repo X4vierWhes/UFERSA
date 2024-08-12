@@ -1,8 +1,8 @@
 ﻿  Curves.cpp
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 1\Curves\Curves\Curves.cpp(192,25): warning C4018: '>=': incompatibilidade de signed/unsigned
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 1\Curves\Curves\Curves.cpp(198,33): warning C4018: '<': incompatibilidade de signed/unsigned
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 1\Curves\Curves\Curves.cpp(240,35): warning C4244: 'argumento': conversão de 'double' para 'float', possível perda de dados
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 1\Curves\Curves\Curves.cpp(242,26): warning C4244: 'argumento': conversão de 'double' para 'float', possível perda de dados
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 1\Curves\Curves\Curves.cpp(364,30): warning C4018: '<': incompatibilidade de signed/unsigned
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 1\Curves\Curves\Curves.cpp(412,27): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 1\Curves\Curves\Curves.cpp(187,25): warning C4018: '>=': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 1\Curves\Curves\Curves.cpp(193,33): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 1\Curves\Curves\Curves.cpp(235,35): warning C4244: 'argumento': conversão de 'double' para 'float', possível perda de dados
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 1\Curves\Curves\Curves.cpp(237,26): warning C4244: 'argumento': conversão de 'double' para 'float', possível perda de dados
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 1\Curves\Curves\Curves.cpp(359,30): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 1\Curves\Curves\Curves.cpp(406,27): warning C4018: '<': incompatibilidade de signed/unsigned
   Curves.vcxproj -> C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 1\Curves\x64\Debug\Curves.exe

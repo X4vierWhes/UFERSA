@@ -73,19 +73,19 @@ private:
     /*AREA QUE CUIDA DOS PONTOS DE CONTROLE DESENHANDOS NA TELA*/
     Mesh* pointsMesh; //Geometria pontos de controle
     static const uint ctrlCount = 4; //Quantidade de vertices de controle;
-    Vertex points[ctrlCount][VertexCount];
+    Vertex points[ctrlCount][VertexCount]{};
     int pointsCount = 0;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*AREA QUE CUIDA DAS LINHAS DE CONTROLE*/
     Mesh* linesMesh; //Geometria das linhas de controle
-    Vertex lines[ctrlCount]; //Vetor que cuidará das linhas de controle
+    Vertex lines[ctrlCount]{}; //Vetor que cuidará das linhas de controle
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*AREA QUE CUIDA DA LINHA QUE SEGUE O MOUSE*/
     Mesh* lineMesh; //Linha que segue o mouse
     static const uint lineCount = 2;
-    Vertex linee[lineCount];
+    Vertex linee[lineCount]{};
 
 public:
     void Init();
