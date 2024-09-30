@@ -1,12 +1,12 @@
 ﻿  Single.cpp
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(279,29): warning C4018: '<': incompatibilidade de signed/unsigned
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(283,29): warning C4018: '<': incompatibilidade de signed/unsigned
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(340,29): warning C4018: '<': incompatibilidade de signed/unsigned
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(344,29): warning C4018: '<': incompatibilidade de signed/unsigned
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(400,29): warning C4018: '<': incompatibilidade de signed/unsigned
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(404,29): warning C4018: '<': incompatibilidade de signed/unsigned
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(460,29): warning C4018: '<': incompatibilidade de signed/unsigned
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(464,29): warning C4018: '<': incompatibilidade de signed/unsigned
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(520,29): warning C4018: '<': incompatibilidade de signed/unsigned
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(524,29): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(280,29): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(284,29): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(341,29): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(345,29): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(401,29): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(405,29): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(461,29): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(465,29): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(521,29): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(525,29): warning C4018: '<': incompatibilidade de signed/unsigned
   Single.vcxproj -> C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\x64\Debug\Single.exe

@@ -56,6 +56,7 @@ private:
     Pair* pair = nullptr; //Struct que criei para marcar inicio e fim
     Vertex* vertices = nullptr; //Ponteiro para vetor de vertices
     vector<uint> indices; //Vector de indices
+    int tab = -1; //Controle do TAB
 
 public:
     void Init();
@@ -476,7 +477,7 @@ void Single::Update()
             Object obj;
             // Grid
             XMStoreFloat4x4(&obj.world,
-                XMMatrixScaling(0.0f, 0.0f, 0.0f)*
+                XMMatrixScaling(0.5f, 0.5f, 0.5f)*
                 XMMatrixTranslation(0.0f, 0.5f, 0.0f));
             obj.cbIndex = objectsInScene;
             obj.submesh = newGridSubMesh;
@@ -536,8 +537,8 @@ void Single::Update()
             Object obj;
             // Quad
             XMStoreFloat4x4(&obj.world,
-                XMMatrixScaling(0.0f, 0.0f, 0.0f) *
-                XMMatrixTranslation(0.0f, 0.5f, 0.0f));
+                XMMatrixScaling(0.5f, 0.5f, 0.5f) *
+                XMMatrixTranslation(0.0f, 0.0f, 0.0f));
             obj.cbIndex = objectsInScene;
             obj.submesh = newQuadSubMesh;
             scene.push_back(obj);
@@ -563,94 +564,90 @@ void Single::Update()
 
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //Comandas de edição do mundo
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Derivados
-    // sai com o pressionamento da tecla ESC
-    if (input->KeyPress(VK_ESCAPE))
-        window->Close();
+    
+        // sai com o pressionamento da tecla ESC
+        if (input->KeyPress(VK_ESCAPE))
+            window->Close();
 
 
-    // ativa ou desativa o giro do objeto
-    if (input->KeyPress('R') || input->KeyPress('r'))
-    {
-        spinning = !spinning;
-
-        if (spinning)
-            timer.Start();
-        else
-            timer.Stop();
-    }
-
-    float mousePosX = (float)input->MouseX();
-    float mousePosY = (float)input->MouseY();
-
-    if (input->KeyDown(VK_LBUTTON))
-    {
-        // cada pixel corresponde a 1/4 de grau
-        float dx = XMConvertToRadians(0.25f * (mousePosX - lastMousePosX));
-        float dy = XMConvertToRadians(0.25f * (mousePosY - lastMousePosY));
-
-        // atualiza ângulos com base no deslocamento do mouse 
-        // para orbitar a câmera ao redor da caixa
-        theta += dx;
-        phi += dy;
-
-        // restringe o ângulo de phi ]0-180[ graus
-        phi = phi < 0.1f ? 0.1f : (phi > (XM_PI - 0.1f) ? XM_PI - 0.1f : phi);
-    }
-    else if (input->KeyDown(VK_RBUTTON))
-    {
-        // cada pixel corresponde a 0.05 unidades
-        float dx = 0.05f * (mousePosX - lastMousePosX);
-        float dy = 0.05f * (mousePosY - lastMousePosY);
-
-        // atualiza o raio da câmera com base no deslocamento do mouse 
-        radius += dx - dy;
-
-        // restringe o raio (3 a 15 unidades)
-        radius = radius < 3.0f ? 3.0f : (radius > 15.0f ? 15.0f : radius);
-    }
-
-    lastMousePosX = mousePosX;
-    lastMousePosY = mousePosY;
-
-    // converte coordenadas esféricas para cartesianas
-    float x = radius * sinf(phi) * cosf(theta);
-    float z = radius * sinf(phi) * sinf(theta);
-    float y = radius * cosf(phi);
-
-    // constrói a matriz da câmera (view matrix)
-    XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
-    XMVECTOR target = XMVectorZero();
-    XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
-    XMStoreFloat4x4(&View, view);
-
-    // carrega matriz de projeção em uma XMMATRIX
-    XMMATRIX proj = XMLoadFloat4x4(&Proj);
-
-    // ajusta o buffer constante de cada objeto
-    for (auto& obj : scene)
-    {
-        // modifica matriz de mundo da esfera
-        if (obj.cbIndex == 2)
+        // ativa ou desativa o giro do objeto
+        if (input->KeyPress('R') || input->KeyPress('r'))
         {
-            XMStoreFloat4x4(&obj.world,
-                XMMatrixScaling(0.5f, 0.5f, 0.5f) *
-                XMMatrixRotationY(float(timer.Elapsed())) *
-                XMMatrixTranslation(0.0f, 0.5f, 0.0f));
+            spinning = !spinning;
+
+            if (spinning)
+                timer.Start();
+            else
+                timer.Stop();
         }
 
-        // carrega matriz de mundo em uma XMMATRIX
-        XMMATRIX world = XMLoadFloat4x4(&obj.world);      
+        float mousePosX = (float)input->MouseX();
+        float mousePosY = (float)input->MouseY();
 
-        // constrói matriz combinada (world x view x proj)
-        XMMATRIX WorldViewProj = world * view * proj;        
+        if (input->KeyDown(VK_LBUTTON))
+        {
+            // cada pixel corresponde a 1/4 de grau
+            float dx = XMConvertToRadians(0.25f * (mousePosX - lastMousePosX));
+            float dy = XMConvertToRadians(0.25f * (mousePosY - lastMousePosY));
 
-        // atualiza o buffer constante com a matriz combinada
-        ObjectConstants constants;
-        XMStoreFloat4x4(&constants.WorldViewProj, XMMatrixTranspose(WorldViewProj));
-        mesh->CopyConstants(&constants, obj.cbIndex);
-    }
+            // atualiza ângulos com base no deslocamento do mouse 
+            // para orbitar a câmera ao redor da caixa
+            theta += dx;
+            phi += dy;
+
+            // restringe o ângulo de phi ]0-180[ graus
+            phi = phi < 0.1f ? 0.1f : (phi > (XM_PI - 0.1f) ? XM_PI - 0.1f : phi);
+        }
+        else if (input->KeyDown(VK_RBUTTON))
+        {
+            // cada pixel corresponde a 0.05 unidades
+            float dx = 0.05f * (mousePosX - lastMousePosX);
+            float dy = 0.05f * (mousePosY - lastMousePosY);
+
+            // atualiza o raio da câmera com base no deslocamento do mouse 
+            radius += dx - dy;
+
+            // restringe o raio (3 a 15 unidades)
+            radius = radius < 3.0f ? 3.0f : (radius > 15.0f ? 15.0f : radius);
+        }
+
+        lastMousePosX = mousePosX;
+        lastMousePosY = mousePosY;
+
+        // converte coordenadas esféricas para cartesianas
+        float x = radius * sinf(phi) * cosf(theta);
+        float z = radius * sinf(phi) * sinf(theta);
+        float y = radius * cosf(phi);
+
+        // constrói a matriz da câmera (view matrix)
+        XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
+        XMVECTOR target = XMVectorZero();
+        XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+        XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
+        XMStoreFloat4x4(&View, view);
+
+        // carrega matriz de projeção em uma XMMATRIX
+        XMMATRIX proj = XMLoadFloat4x4(&Proj);
+
+        // ajusta o buffer constante de cada objeto
+        for (auto& obj : scene)
+        {
+            // carrega matriz de mundo em uma XMMATRIX
+            XMMATRIX world = XMLoadFloat4x4(&obj.world);
+
+            // constrói matriz combinada (world x view x proj)
+            XMMATRIX WorldViewProj = world * view * proj;
+
+            // atualiza o buffer constante com a matriz combinada
+            ObjectConstants constants;
+            XMStoreFloat4x4(&constants.WorldViewProj, XMMatrixTranspose(WorldViewProj));
+            mesh->CopyConstants(&constants, obj.cbIndex);
+        }
+    
 }
 
 // ------------------------------------------------------------------------------
