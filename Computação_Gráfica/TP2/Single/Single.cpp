@@ -22,9 +22,11 @@ struct ObjectConstants
       0.0f, 0.0f, 0.0f, 1.0f };
 };
 
-struct Pair {
-    int begin;
-    int end;
+struct Location {
+    int beginVertex;
+    int endVertex;
+    int beginIndex;
+    int endIndex;
 };
 
 // ------------------------------------------------------------------------------
@@ -34,7 +36,7 @@ class Single : public App
 private:
     ID3D12RootSignature* rootSignature = nullptr;
     ID3D12PipelineState* pipelineState = nullptr;
-    vector<Object> scene;
+    vector<Object> scene; //Coloca todos os objetos
     Mesh* mesh = nullptr;
 
     Timer timer;
@@ -53,9 +55,10 @@ private:
     uint objectsInScene = 1; //Quantidade de Objetos em cena
     uint totalIndexCount = 0; //Quantidade de index
     uint totalVertexCount = 0; //Quantidade de vertices
-    Pair* pair = nullptr; //Struct que criei para marcar inicio e fim
+    Location* objLocation = nullptr; //Struct que criei para marcar inicio e fim
     Vertex* vertices = nullptr; //Ponteiro para vetor de vertices
     vector<uint> indices; //Vector de indices
+    uint objAmount = 10; //Inicia com 10 objetos possiveis;
     int tab = -1; //Controle do TAB
 
 public:
@@ -131,18 +134,22 @@ void Single::Init()
 
     // junta todos os vértices em um único vetor
     vertices = new Vertex[totalVertexCount];
-    
+    objLocation = new Location[objAmount];
+    objLocation[0].beginVertex = 0; //Inicio do primeiro obj no vetor de vertices
     for (uint i = 0; i < grid.VertexCount(); ++i)
     {
         vertices[i].pos = grid.vertices[i].pos;
         vertices[i].color = XMFLOAT4(DirectX::Colors::DimGray);
     }
-    
 
+    objLocation[0].endVertex = totalVertexCount; //Fim do objeto no vetor de vertices
+    
+   
     // junta todos os índices em um único vetor
     /*Refazer uma logica propria para vetor de indices*/
+    objLocation[0].beginIndex = 0; //Indice começa no começo do vector de indices
     indices.insert(indices.end(), begin(grid.indices), end(grid.indices));
-    
+    objLocation[0].endIndex = indices.size(); //Termina sempre no final
     // ------------------------
     // Definição das Sub-Malhas
     // ------------------------
@@ -192,6 +199,25 @@ void Single::Init()
 void Single::Update()
 {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //Funções de apoio
+    {
+        if (objectsInScene >= objAmount) { //Crescer vetor de quantidade de objetos em cena e suas localizações
+
+            OutputDebugString("Entrei\n");
+            uint newAmount = objAmount * 2;
+            Location* aux = new Location[newAmount];
+            for (int i{}; i < objAmount; i++) {
+                aux[i] = objLocation[i]; //Copiando
+            }
+
+            delete[] objLocation;
+            objAmount = newAmount;
+            string msg = std::to_string(objAmount) + "\n";
+            OutputDebugString(msg.c_str());
+            objLocation = aux;
+        }
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Comandos de adição
     {
         //Adiciona uma BOX ao apertar a tecla B
@@ -210,6 +236,7 @@ void Single::Update()
 
             Vertex* aux = new Vertex[newTotalVertexCount]; //Cria um novo vetor aux;
             int k = 0;
+            objLocation[objectsInScene].beginVertex = totalVertexCount;
             for (uint i{}; i < totalVertexCount; i++, k++) { //Copia dados do vetor antigo
                 aux[i].pos = vertices[i].pos;
                 aux[i].color = vertices[i].color;
@@ -219,8 +246,11 @@ void Single::Update()
                 aux[k].pos = newBox.vertices[i].pos;
                 aux[k].color = XMFLOAT4(DirectX::Colors::DimGray);
             }
-
+            objLocation[objectsInScene].endVertex = newTotalVertexCount;
+            
+            objLocation[objectsInScene].beginIndex = indices.size();
             indices.insert(indices.end(), begin(newBox.indices), end(newBox.indices)); //Insere em vector de indices
+            objLocation[objectsInScene].endIndex = indices.size();
 
             SubMesh newBoxSubMesh; //Definindo subMalha
             newBoxSubMesh.indexCount = uint(newBox.IndexCount());
@@ -276,17 +306,21 @@ void Single::Update()
 
             Vertex* aux = new Vertex[newTotalVertexCount]; //Cria um novo vetor aux;
             int k = 0;
-
-            for (int i{}; i < totalVertexCount; i++, k++) {
-                aux[i] = vertices[i];
+            objLocation[objectsInScene].beginVertex = totalVertexCount;
+            for (uint i{}; i < totalVertexCount; i++, k++) { //Copia dados do vetor antigo
+                aux[i].pos = vertices[i].pos;
+                aux[i].color = vertices[i].color;
             }
 
-            for (int i{}; i < newCylinder.VertexCount(); i++, k++) {
+            for (uint i{}; i < newCylinder.VertexCount(); i++, k++) {
                 aux[k].pos = newCylinder.vertices[i].pos;
                 aux[k].color = XMFLOAT4(DirectX::Colors::DimGray);
             }
+            objLocation[objectsInScene].endVertex = newTotalVertexCount;
 
-            indices.insert(indices.end(), begin(newCylinder.indices), end(newCylinder.indices));
+            objLocation[objectsInScene].beginIndex = indices.size();
+            indices.insert(indices.end(), begin(newCylinder.indices), end(newCylinder.indices)); //Insere em vector de indices
+            objLocation[objectsInScene].endIndex = indices.size();
 
             SubMesh newCylinderSubMesh;
             newCylinderSubMesh.indexCount = uint(newCylinder.IndexCount());
@@ -337,17 +371,21 @@ void Single::Update()
 
             Vertex* aux = new Vertex[newTotalVertexCount]; //Cria um novo vetor aux;
             int k = 0;
-
-            for (int i{}; i < totalVertexCount; i++, k++) {
-                aux[i] = vertices[i];
+            objLocation[objectsInScene].beginVertex = totalVertexCount;
+            for (uint i{}; i < totalVertexCount; i++, k++) { //Copia dados do vetor antigo
+                aux[i].pos = vertices[i].pos;
+                aux[i].color = vertices[i].color;
             }
 
-            for (int i{}; i < newSphere.VertexCount(); i++, k++) {
+            for (uint i{}; i < newSphere.VertexCount(); i++, k++) {
                 aux[k].pos = newSphere.vertices[i].pos;
                 aux[k].color = XMFLOAT4(DirectX::Colors::DimGray);
             }
+            objLocation[objectsInScene].endVertex = newTotalVertexCount;
 
-            indices.insert(indices.end(), begin(newSphere.indices), end(newSphere.indices));
+            objLocation[objectsInScene].beginIndex = indices.size();
+            indices.insert(indices.end(), begin(newSphere.indices), end(newSphere.indices)); //Insere em vector de indices
+            objLocation[objectsInScene].endIndex = indices.size();
 
             SubMesh newSphereSubMesh;
             newSphereSubMesh.indexCount = uint(newSphere.IndexCount());
@@ -397,17 +435,21 @@ void Single::Update()
 
             Vertex* aux = new Vertex[newTotalVertexCount]; //Cria um novo vetor aux;
             int k = 0;
-
-            for (int i{}; i < totalVertexCount; i++, k++) {
-                aux[i] = vertices[i];
+            objLocation[objectsInScene].beginVertex = totalVertexCount;
+            for (uint i{}; i < totalVertexCount; i++, k++) { //Copia dados do vetor antigo
+                aux[i].pos = vertices[i].pos;
+                aux[i].color = vertices[i].color;
             }
 
-            for (int i{}; i < newGeoSphere.VertexCount(); i++, k++) {
+            for (uint i{}; i < newGeoSphere.VertexCount(); i++, k++) {
                 aux[k].pos = newGeoSphere.vertices[i].pos;
                 aux[k].color = XMFLOAT4(DirectX::Colors::DimGray);
             }
+            objLocation[objectsInScene].endVertex = newTotalVertexCount;
 
-            indices.insert(indices.end(), begin(newGeoSphere.indices), end(newGeoSphere.indices));
+            objLocation[objectsInScene].beginIndex = indices.size();
+            indices.insert(indices.end(), begin(newGeoSphere.indices), end(newGeoSphere.indices)); //Insere em vector de indices
+            objLocation[objectsInScene].endIndex = indices.size();
 
             SubMesh newGeoSphereSubMesh;
             newGeoSphereSubMesh.indexCount = uint(newGeoSphere.IndexCount());
@@ -457,17 +499,21 @@ void Single::Update()
 
             Vertex* aux = new Vertex[newTotalVertexCount]; //Cria um novo vetor aux;
             int k = 0;
-
-            for (int i{}; i < totalVertexCount; i++, k++) {
-                aux[i] = vertices[i];
+            objLocation[objectsInScene].beginVertex = totalVertexCount;
+            for (uint i{}; i < totalVertexCount; i++, k++) { //Copia dados do vetor antigo
+                aux[i].pos = vertices[i].pos;
+                aux[i].color = vertices[i].color;
             }
 
-            for (int i{}; i < newGrid.VertexCount(); i++, k++) {
+            for (uint i{}; i < newGrid.VertexCount(); i++, k++) {
                 aux[k].pos = newGrid.vertices[i].pos;
                 aux[k].color = XMFLOAT4(DirectX::Colors::DimGray);
             }
+            objLocation[objectsInScene].endVertex = newTotalVertexCount;
 
-            indices.insert(indices.end(), begin(newGrid.indices), end(newGrid.indices));
+            objLocation[objectsInScene].beginIndex = indices.size();
+            indices.insert(indices.end(), begin(newGrid.indices), end(newGrid.indices)); //Insere em vector de indices
+            objLocation[objectsInScene].endIndex = indices.size();
 
             SubMesh newGridSubMesh;
             newGridSubMesh.indexCount = uint(newGrid.IndexCount());
@@ -517,17 +563,21 @@ void Single::Update()
 
             Vertex* aux = new Vertex[newTotalVertexCount]; //Cria um novo vetor aux;
             int k = 0;
-
-            for (int i{}; i < totalVertexCount; i++, k++) {
-                aux[i] = vertices[i];
+            objLocation[objectsInScene].beginVertex = totalVertexCount;
+            for (uint i{}; i < totalVertexCount; i++, k++) { //Copia dados do vetor antigo
+                aux[i].pos = vertices[i].pos;
+                aux[i].color = vertices[i].color;
             }
 
-            for (int i{}; i < newQuad.VertexCount(); i++, k++) {
+            for (uint i{}; i < newQuad.VertexCount(); i++, k++) {
                 aux[k].pos = newQuad.vertices[i].pos;
                 aux[k].color = XMFLOAT4(DirectX::Colors::DimGray);
             }
+            objLocation[objectsInScene].endVertex = newTotalVertexCount;
 
-            indices.insert(indices.end(), begin(newQuad.indices), end(newQuad.indices));
+            objLocation[objectsInScene].beginIndex = indices.size();
+            indices.insert(indices.end(), begin(newQuad.indices), end(newQuad.indices)); //Insere em vector de indices
+            objLocation[objectsInScene].endIndex = indices.size();
 
             SubMesh newQuadSubMesh;
             newQuadSubMesh.indexCount = uint(newQuad.IndexCount());
@@ -565,7 +615,107 @@ void Single::Update()
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Comandas de edição do mundo
+    {
+        //Tirar tab
+        if (input->KeyPress('K') || input->KeyPress('k')) {
+            graphics->ResetCommands();
+            if (tab != -1) {
+                for (int i = objLocation[tab].beginVertex; i < objLocation[tab].endVertex; i++) {
+                    vertices[i].color = XMFLOAT4(DirectX::Colors::DimGray);
+                }
+            }
 
+            tab = -1;
+
+            mesh->VertexBuffer(vertices, totalVertexCount * sizeof(Vertex), sizeof(Vertex));
+            mesh->IndexBuffer(indices.data(), totalIndexCount * sizeof(uint), DXGI_FORMAT_R32_UINT);
+            mesh->ConstantBuffer(sizeof(ObjectConstants), uint(scene.size()));
+            graphics->SubmitCommands();
+        }
+
+        //Apertar DEL para deletar figura selecionada;
+        if (input->KeyPress(VK_DELETE)) {
+            OutputDebugString("Entrei\n");
+
+            if (tab != -1 && objectsInScene > 0) {
+                graphics->ResetCommands();
+
+                
+                int newTotalVertexCount = totalVertexCount - (objLocation[tab].endVertex - objLocation[tab].beginVertex);
+                int newTotalIndexCount = totalIndexCount - (objLocation[tab].endIndex - objLocation[tab].beginIndex);
+                //Fazendo uma copia para um vetor de todos menos os deletados;
+                Vertex* aux = new Vertex[newTotalVertexCount];
+
+                //Iniciando de for que vai até o inicio do que desejamos deletar
+                int k = 0;
+                for (int i{}; i < objLocation[tab].beginVertex; i++, k++) {
+                    aux[k] = vertices[i];
+                }
+
+                for (int i{objLocation[tab].endVertex}; i < totalVertexCount; i++, k++) { //For que vai do fim do deletado ate o fim do vetor total
+                    aux[k] = vertices[i];
+                }
+
+
+                delete[] vertices;
+                vertices = aux;
+                
+                indices.erase(indices.begin() + objLocation[tab].beginIndex, //Inicio do intervalo
+                    indices.begin() + objLocation[tab].endIndex); //Fim do intervalo
+
+                scene.erase(scene.begin() + tab);
+
+                for (int i{ tab }; i < scene.size(); i++) {
+                    if (scene.at(i).cbIndex != 0) {
+                        scene.at(i).cbIndex -= 1;
+                    }
+                }
+
+                tab = -1;
+
+                totalVertexCount = newTotalVertexCount;
+                totalIndexCount = newTotalIndexCount;
+
+                // Atualizar os buffers na GPU
+                mesh->VertexBuffer(vertices, totalVertexCount * sizeof(Vertex), sizeof(Vertex));
+                mesh->IndexBuffer(indices.data(), totalIndexCount * sizeof(uint), DXGI_FORMAT_R32_UINT);
+                mesh->ConstantBuffer(sizeof(ObjectConstants), uint(scene.size()));
+
+                // Submeter os novos comandos
+                graphics->SubmitCommands();
+            }
+        }
+
+
+        //Tab para selecionar figura
+        if (input->KeyPress(VK_TAB)) {
+            graphics->ResetCommands();
+            static int lastTab = tab - 1;
+
+            //OutputDebugString("Entrei");
+            tab++;
+            if (tab >= objectsInScene) {
+                tab = 0;
+            }
+
+            if (lastTab != -1) {
+                for (int i = objLocation[lastTab].beginVertex; i < objLocation[lastTab].endVertex; i++) {
+                    vertices[i].color = XMFLOAT4(DirectX::Colors::DimGray);
+                }
+            }
+
+            for (int i = objLocation[tab].beginVertex; i < objLocation[tab].endVertex; i++) {
+                vertices[i].color = XMFLOAT4(DirectX::Colors::Red);
+            }
+
+            lastTab = tab;
+            //OutputDebugString(std::to_string(tab).c_str());
+            mesh->VertexBuffer(vertices, totalVertexCount * sizeof(Vertex), sizeof(Vertex));
+            mesh->IndexBuffer(indices.data(), totalIndexCount * sizeof(uint), DXGI_FORMAT_R32_UINT);
+            mesh->ConstantBuffer(sizeof(ObjectConstants), uint(scene.size()));
+            graphics->SubmitCommands();
+        }
+    }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Derivados
     
@@ -659,7 +809,7 @@ void Single::Draw()
 
     // comandos de configuração do pipeline
     ID3D12DescriptorHeap* descriptorHeaps = mesh->ConstantBufferHeap() ;
-    graphics->CommandList()->SetDescriptorHeaps(1, &descriptorHeaps);
+    graphics->CommandList()->SetDescriptorHeaps(1, &descriptorHeaps); 
     graphics->CommandList()->SetGraphicsRootSignature(rootSignature);
     graphics->CommandList()->IASetVertexBuffers(0, 1, mesh->VertexBufferView());
     graphics->CommandList()->IASetIndexBuffer(mesh->IndexBufferView());
@@ -691,6 +841,7 @@ void Single::Finalize()
     pipelineState->Release();
     delete vertices;
     delete mesh;
+    delete objLocation;
 }
 
 
