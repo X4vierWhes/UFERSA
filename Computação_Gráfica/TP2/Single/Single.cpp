@@ -25,8 +25,6 @@ struct ObjectConstants
 struct Location {
     int beginVertex;
     int endVertex;
-    int beginIndex;
-    int endIndex;
 };
 
 // ------------------------------------------------------------------------------
@@ -87,44 +85,42 @@ void Single::AddObjectToScene(Geometry& newObject, float scaleX, float scaleY, f
     //Cria vetor auxiliar
     Vertex* aux = new Vertex[newTotalVertexCount];
     int k = 0;
-
-    objLocation[objectsInScene].beginVertex = totalVertexCount;
+    //Copiando vetor de vertices
     for (uint i{}; i < totalVertexCount; i++, k++) {
         aux[k].pos = vertices[i].pos;
         aux[k].color = vertices[i].color;
     }
-
+    //Adicionando novo objeto no vetor auxiliar que virara o novo vetor de vertices
     for (uint i{}; i < newObject.VertexCount(); i++, k++) {
         aux[k].pos = newObject.vertices[i].pos;
         aux[k].color = XMFLOAT4(DirectX::Colors::DimGray);
     }
-    objLocation[objectsInScene].endVertex = newTotalVertexCount;
-
-    objLocation[objectsInScene].beginIndex = indices.size();
+    //Localição dos vertices (Inicio e Fim) no vetor de vertices
+    objLocation[objectsInScene] = Location{ (int)totalVertexCount, (int)newTotalVertexCount };
+    //Indices para desenhar os objetos estão colocados em sequencia
     indices.insert(indices.end(), begin(newObject.indices), end(newObject.indices));
-    objLocation[objectsInScene].endIndex = indices.size();
-
+    //Criando SubMesh do novo objeto
     SubMesh newSubMesh;
-    newSubMesh.indexCount = uint(newObject.IndexCount());
-    newSubMesh.startIndex = totalIndexCount;
+    newSubMesh.indexCount = uint(newObject.IndexCount()); //Numero de indices necessarios para desenhar o objeto
+    newSubMesh.startIndex = totalIndexCount; //Onde inicia no vetor de vertices
     newSubMesh.baseVertex = totalVertexCount;
 
-    Object obj;
+    Object obj; //Criando Objeto pra colocar na cena
     XMStoreFloat4x4(&obj.world,
         XMMatrixScaling(scaleX, scaleY, scaleZ) *
-        XMMatrixTranslation(0.0f, 0.0f, 0.0f));
-    obj.cbIndex = objectsInScene;
-    obj.submesh = newSubMesh;
-    scene.push_back(obj);
+        XMMatrixTranslation(0.0f, 0.0f, 0.0f)); //Movimento ele no mundo
+    obj.cbIndex = objectsInScene; //Index no Buffer
+    obj.submesh = newSubMesh; //SubMesh do objeto
+    scene.push_back(obj); //Adicionando no vetor de cenas
 
-    objectsInScene++;
+    objectsInScene++; //Aumentando quantidade de objetos na cena
 
-    delete[] vertices;
+    delete[] vertices; //Deletando vetor antigo
 
-    totalVertexCount = newTotalVertexCount;
-    totalIndexCount = newTotalIndexCount;
+    totalVertexCount = newTotalVertexCount; //Atualizando total de vertices
+    totalIndexCount = newTotalIndexCount; //Atualizando totla de indices
 
-    vertices = aux;
+    vertices = aux; //Novo vetor de vertices
 
     mesh->VertexBuffer(vertices, vbSize, sizeof(Vertex));
     mesh->IndexBuffer(indices.data(), ibSize, DXGI_FORMAT_R32_UINT);
@@ -135,82 +131,48 @@ void Single::AddObjectToScene(Geometry& newObject, float scaleX, float scaleY, f
 
 void Single::DeleteObjectToScene() {
 
-    if (tab != -1 && objectsInScene > 0) { //Refazer logica, nao ta funcionando
+    if (tab != -1 && objectsInScene > 0) {
         graphics->ResetCommands();
+        //Calcular novos tamanhos de Index size e VertexSize;
+        //Precisa tirar objeto do vetor da cena
+        //Precisa tirar os indices do objeto do vetor de indices
+        //Precisa tirar os vertices do objeto do vetor de vertices
+        //Precisa atualizar todos os parametros dos objetos que nao foram deletados
+        
 
-
-        int newTotalVertexCount = totalVertexCount - (objLocation[tab].endVertex - objLocation[tab].beginVertex);
-        int newTotalIndexCount = totalIndexCount - (objLocation[tab].endIndex - objLocation[tab].beginIndex);
-        //Fazendo uma copia para um vetor de todos menos os deletados;
-        Vertex* aux = new Vertex[newTotalVertexCount];
-
-        //Iniciando de for que vai até o inicio do que desejamos deletar
-        int k = 0;
-        for (int i{}; i < objLocation[tab].beginVertex; i++, k++) {
-            aux[k] = vertices[i];
-        }
-
-        for (int i{ objLocation[tab].endVertex }; i < totalVertexCount; i++, k++) { //For que vai do fim do deletado ate o fim do vetor total
-            aux[k] = vertices[i];
-        }
-
-
-        delete[] vertices;
-        vertices = aux;
-
-        indices.erase(indices.begin() + objLocation[tab].beginIndex, //Inicio do intervalo
-            indices.begin() + objLocation[tab].endIndex); //Fim do intervalo
-
-        scene.erase(scene.begin() + tab);
-
-        for (int i{ tab }; i < scene.size(); i++) {
-            if (scene.at(i).cbIndex != 0) {
-                scene.at(i).cbIndex -= 1;
-            }
-        }
-
-        tab = -1;
-
-        totalVertexCount = newTotalVertexCount;
-        totalIndexCount = newTotalIndexCount;
-
-        // Atualizar os buffers na GPU
-        mesh->VertexBuffer(vertices, totalVertexCount * sizeof(Vertex), sizeof(Vertex));
-        mesh->IndexBuffer(indices.data(), totalIndexCount * sizeof(uint), DXGI_FORMAT_R32_UINT);
-        mesh->ConstantBuffer(sizeof(ObjectConstants), uint(scene.size()));
-
-        // Submeter os novos comandos
+        
         graphics->SubmitCommands();
     }
     
 }
 
 void Single::SelectObjectInScene() {
-    graphics->ResetCommands();
+     graphics->ResetCommands();
+    
+     tab++; //Tab inicia com -1
 
-    tab++;
-    static int lastTab = tab - 1;
-
-    if (tab >= objectsInScene) {
+     if (tab >= objectsInScene) {
         tab = 0;
-    }
+     }
 
-    if (lastTab > -1) {
+     static int lastTab = tab - 1; //Ultimo Tab
+
+     if (lastTab > -1) {
         for (int i = objLocation[lastTab].beginVertex; i < objLocation[lastTab].endVertex; i++) {
             vertices[i].color = XMFLOAT4(DirectX::Colors::DimGray);
         }
-    }
+     }
 
-    for (int i = objLocation[tab].beginVertex; i < objLocation[tab].endVertex; i++) {
+     for (int i = objLocation[tab].beginVertex; i < objLocation[tab].endVertex; i++) {
         vertices[i].color = XMFLOAT4(DirectX::Colors::Red);
-    }
+     }
 
-    lastTab = tab;
-    //OutputDebugString(std::to_string(tab).c_str());
-    mesh->VertexBuffer(vertices, totalVertexCount * sizeof(Vertex), sizeof(Vertex));
-    mesh->IndexBuffer(indices.data(), totalIndexCount * sizeof(uint), DXGI_FORMAT_R32_UINT);
-    mesh->ConstantBuffer(sizeof(ObjectConstants), uint(scene.size()));
-    graphics->SubmitCommands();
+     lastTab = tab;
+     //OutputDebugString(std::to_string(tab).c_str());
+     mesh->VertexBuffer(vertices, totalVertexCount * sizeof(Vertex), sizeof(Vertex));
+     mesh->IndexBuffer(indices.data(), totalIndexCount * sizeof(uint), DXGI_FORMAT_R32_UINT);
+     mesh->ConstantBuffer(sizeof(ObjectConstants), uint(scene.size()));
+     graphics->SubmitCommands();
 }
 
 void Single::Init()
@@ -287,9 +249,8 @@ void Single::Init()
    
     // junta todos os índices em um único vetor
     /*Refazer uma logica propria para vetor de indices*/
-    objLocation[0].beginIndex = 0; //Indice começa no começo do vector de indices
     indices.insert(indices.end(), begin(grid.indices), end(grid.indices));
-    objLocation[0].endIndex = indices.size(); //Termina sempre no final
+
     // ------------------------
     // Definição das Sub-Malhas
     // ------------------------

@@ -1,8 +1,4 @@
 ﻿  Single.cpp
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(103,58): warning C4267: '=': conversão de 'size_t' para 'int', possível perda de dados
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(105,56): warning C4267: '=': conversão de 'size_t' para 'int', possível perda de dados
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(153,53): warning C4018: '<': incompatibilidade de signed/unsigned
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(194,13): warning C4018: '>=': incompatibilidade de signed/unsigned
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(292,43): warning C4267: '=': conversão de 'size_t' para 'int', possível perda de dados
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(349,29): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(154,14): warning C4018: '>=': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(310,29): warning C4018: '<': incompatibilidade de signed/unsigned
   Single.vcxproj -> C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\x64\Debug\Single.exe
