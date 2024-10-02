@@ -67,6 +67,8 @@ public:
     void Draw();
     void Finalize();
     void AddObjectToScene(Geometry& newObject, float scaleX, float scaleY, float scaleZ);
+    void DeleteObjectToScene();
+    void SelectObjectInScene();
 
     void BuildRootSignature();
     void BuildPipelineState();
@@ -131,6 +133,85 @@ void Single::AddObjectToScene(Geometry& newObject, float scaleX, float scaleY, f
     graphics->SubmitCommands();
 }
 
+void Single::DeleteObjectToScene() {
+
+    if (tab != -1 && objectsInScene > 0) { //Refazer logica, nao ta funcionando
+        graphics->ResetCommands();
+
+
+        int newTotalVertexCount = totalVertexCount - (objLocation[tab].endVertex - objLocation[tab].beginVertex);
+        int newTotalIndexCount = totalIndexCount - (objLocation[tab].endIndex - objLocation[tab].beginIndex);
+        //Fazendo uma copia para um vetor de todos menos os deletados;
+        Vertex* aux = new Vertex[newTotalVertexCount];
+
+        //Iniciando de for que vai até o inicio do que desejamos deletar
+        int k = 0;
+        for (int i{}; i < objLocation[tab].beginVertex; i++, k++) {
+            aux[k] = vertices[i];
+        }
+
+        for (int i{ objLocation[tab].endVertex }; i < totalVertexCount; i++, k++) { //For que vai do fim do deletado ate o fim do vetor total
+            aux[k] = vertices[i];
+        }
+
+
+        delete[] vertices;
+        vertices = aux;
+
+        indices.erase(indices.begin() + objLocation[tab].beginIndex, //Inicio do intervalo
+            indices.begin() + objLocation[tab].endIndex); //Fim do intervalo
+
+        scene.erase(scene.begin() + tab);
+
+        for (int i{ tab }; i < scene.size(); i++) {
+            if (scene.at(i).cbIndex != 0) {
+                scene.at(i).cbIndex -= 1;
+            }
+        }
+
+        tab = -1;
+
+        totalVertexCount = newTotalVertexCount;
+        totalIndexCount = newTotalIndexCount;
+
+        // Atualizar os buffers na GPU
+        mesh->VertexBuffer(vertices, totalVertexCount * sizeof(Vertex), sizeof(Vertex));
+        mesh->IndexBuffer(indices.data(), totalIndexCount * sizeof(uint), DXGI_FORMAT_R32_UINT);
+        mesh->ConstantBuffer(sizeof(ObjectConstants), uint(scene.size()));
+
+        // Submeter os novos comandos
+        graphics->SubmitCommands();
+    }
+    
+}
+
+void Single::SelectObjectInScene() {
+    graphics->ResetCommands();
+
+    tab++;
+    static int lastTab = tab - 1;
+
+    if (tab >= objectsInScene) {
+        tab = 0;
+    }
+
+    if (lastTab > -1) {
+        for (int i = objLocation[lastTab].beginVertex; i < objLocation[lastTab].endVertex; i++) {
+            vertices[i].color = XMFLOAT4(DirectX::Colors::DimGray);
+        }
+    }
+
+    for (int i = objLocation[tab].beginVertex; i < objLocation[tab].endVertex; i++) {
+        vertices[i].color = XMFLOAT4(DirectX::Colors::Red);
+    }
+
+    lastTab = tab;
+    //OutputDebugString(std::to_string(tab).c_str());
+    mesh->VertexBuffer(vertices, totalVertexCount * sizeof(Vertex), sizeof(Vertex));
+    mesh->IndexBuffer(indices.data(), totalIndexCount * sizeof(uint), DXGI_FORMAT_R32_UINT);
+    mesh->ConstantBuffer(sizeof(ObjectConstants), uint(scene.size()));
+    graphics->SubmitCommands();
+}
 
 void Single::Init()
 {
@@ -352,84 +433,15 @@ void Single::Update()
         //Apertar DEL para deletar figura selecionada;
         if (input->KeyPress(VK_DELETE)) {
             OutputDebugString("Entrei\n");
+            if(tab > -1)
+                DeleteObjectToScene();
 
-            if (tab != -1 && objectsInScene > 0) { //Refazer logica, nao ta funcionando
-                graphics->ResetCommands();
-
-
-                int newTotalVertexCount = totalVertexCount - (objLocation[tab].endVertex - objLocation[tab].beginVertex);
-                int newTotalIndexCount = totalIndexCount - (objLocation[tab].endIndex - objLocation[tab].beginIndex);
-                //Fazendo uma copia para um vetor de todos menos os deletados;
-                Vertex* aux = new Vertex[newTotalVertexCount];
-
-                //Iniciando de for que vai até o inicio do que desejamos deletar
-                int k = 0;
-                for (int i{}; i < objLocation[tab].beginVertex; i++, k++) {
-                    aux[k] = vertices[i];
-                }
-
-                for (int i{ objLocation[tab].endVertex }; i < totalVertexCount; i++, k++) { //For que vai do fim do deletado ate o fim do vetor total
-                    aux[k] = vertices[i];
-                }
-
-
-                delete[] vertices;
-                vertices = aux;
-
-                indices.erase(indices.begin() + objLocation[tab].beginIndex, //Inicio do intervalo
-                    indices.begin() + objLocation[tab].endIndex); //Fim do intervalo
-
-                scene.erase(scene.begin() + tab);
-
-                for (int i{ tab }; i < scene.size(); i++) {
-                    if (scene.at(i).cbIndex != 0) {
-                        scene.at(i).cbIndex -= 1;
-                    }
-                }
-
-                tab = -1;
-
-                totalVertexCount = newTotalVertexCount;
-                totalIndexCount = newTotalIndexCount;
-
-                // Atualizar os buffers na GPU
-                mesh->VertexBuffer(vertices, totalVertexCount * sizeof(Vertex), sizeof(Vertex));
-                mesh->IndexBuffer(indices.data(), totalIndexCount * sizeof(uint), DXGI_FORMAT_R32_UINT);
-                mesh->ConstantBuffer(sizeof(ObjectConstants), uint(scene.size()));
-
-                // Submeter os novos comandos
-                graphics->SubmitCommands();
-            }
         }
 
 
         //Tab para selecionar figura
         if (input->KeyPress(VK_TAB)) {
-            graphics->ResetCommands();
-            static int lastTab = tab - 1;
-
-            //OutputDebugString("Entrei");
-            tab++;
-            if (tab >= objectsInScene) {
-                tab = 0;
-            }
-
-            if (lastTab != -1) {
-                for (int i = objLocation[lastTab].beginVertex; i < objLocation[lastTab].endVertex; i++) {
-                    vertices[i].color = XMFLOAT4(DirectX::Colors::DimGray);
-                }
-            }
-
-            for (int i = objLocation[tab].beginVertex; i < objLocation[tab].endVertex; i++) {
-                vertices[i].color = XMFLOAT4(DirectX::Colors::Red);
-            }
-
-            lastTab = tab;
-            //OutputDebugString(std::to_string(tab).c_str());
-            mesh->VertexBuffer(vertices, totalVertexCount * sizeof(Vertex), sizeof(Vertex));
-            mesh->IndexBuffer(indices.data(), totalIndexCount * sizeof(uint), DXGI_FORMAT_R32_UINT);
-            mesh->ConstantBuffer(sizeof(ObjectConstants), uint(scene.size()));
-            graphics->SubmitCommands();
+            SelectObjectInScene();
         }
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
