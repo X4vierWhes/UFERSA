@@ -73,6 +73,8 @@ public:
 };
 
 // ------------------------------------------------------------------------------
+// Funções para ajuda e Legibilidade do codigo
+
 //Função "Template" para adicionar qualquer objeto na cena
 void Single::AddObjectToScene(Geometry& newObject, float scaleX, float scaleY, float scaleZ) { 
     graphics->ResetCommands();
@@ -133,12 +135,50 @@ void Single::DeleteObjectToScene() {
 
     if (tab != -1 && objectsInScene > 0) {
         graphics->ResetCommands();
+        //Calculando novos totais
+        int newTotalVertex = totalVertexCount - objLocation[tab].vertexCount;
+        int newTotalIndex = totalIndexCount - scene.at(tab).submesh.indexCount;
 
-        //Calcular novos tamanhos de Index size e VertexSize;
-        //Precisa tirar objeto do vetor da cena
-        //Precisa tirar os indices do objeto do vetor de indices
-        //Precisa tirar os vertices do objeto do vetor de vertices
-        //Precisa atualizar todos os parametros dos objetos que nao foram deletados
+        int vertexToRemove = objLocation[tab].vertexCount;
+        int indexToRemove = scene.at(tab).submesh.indexCount;
+        //Criando novo vetor
+        Vertex* aux = new Vertex[newTotalVertex];
+        int k = 0;
+        for (int i{}; i < objLocation[tab].baseVertex; i++,k++) { //Copiando inicio do vetor ate chegar no começo do vetor que desejamos deletar
+            aux[k] = vertices[i];
+        }
+
+        for (int i{ objLocation[tab].baseVertex + objLocation[tab].vertexCount }; i < totalVertexCount; i++, k++) { //Copiando o que vem depois do deletado
+            aux[k] = vertices[i];
+        }
+
+        delete[] vertices;
+
+        vertices = aux; //Novo vetor sem indices deletados do vetor de vertices
+
+        indices.erase(indices.begin() + scene.at(tab).submesh.startIndex, 
+            indices.begin() + scene.at(tab).submesh.startIndex + scene.at(tab).submesh.indexCount); //Tirando o intervalo de indices com Erase
+
+        //Atualizar indices do scene e objLocation
+        for (int i{tab}; i < objectsInScene - 1; ++i) {
+            objLocation[i] = objLocation[i + 1];
+            objLocation[i].baseVertex -= vertexToRemove;
+            scene[i] = scene[i + 1];
+            scene[i].submesh.baseVertex -= vertexToRemove;
+            scene[i].submesh.startIndex -= indexToRemove;
+            
+        }
+        
+
+        //Atualizar objetos em cena
+        objectsInScene--;
+
+        delete mesh;
+        mesh = new Mesh();
+
+        mesh->VertexBuffer(vertices, newTotalVertex * sizeof(Vertex), sizeof(Vertex));
+        mesh->IndexBuffer(indices.data(), newTotalIndex * sizeof(uint), DXGI_FORMAT_R32_UINT);
+        mesh->ConstantBuffer(sizeof(ObjectConstants), uint(scene.size()));
         
         graphics->SubmitCommands();
     }
