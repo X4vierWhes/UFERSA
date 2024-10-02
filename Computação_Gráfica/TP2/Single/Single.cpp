@@ -23,8 +23,8 @@ struct ObjectConstants
 };
 
 struct Location {
-    int beginVertex;
-    int endVertex;
+    int baseVertex; //Localização inicial do objeto no vetor de vertices
+    int vertexCount; //Localização final delimitada pelo tamanho de vertices da figura
 };
 
 // ------------------------------------------------------------------------------
@@ -96,19 +96,19 @@ void Single::AddObjectToScene(Geometry& newObject, float scaleX, float scaleY, f
         aux[k].color = XMFLOAT4(DirectX::Colors::DimGray);
     }
     //Localição dos vertices (Inicio e Fim) no vetor de vertices
-    objLocation[objectsInScene] = Location{ (int)totalVertexCount, (int)newTotalVertexCount };
+    objLocation[objectsInScene] = Location{ (int)totalVertexCount, (int)newObject.VertexCount()};
     //Indices para desenhar os objetos estão colocados em sequencia
     indices.insert(indices.end(), begin(newObject.indices), end(newObject.indices));
     //Criando SubMesh do novo objeto
     SubMesh newSubMesh;
     newSubMesh.indexCount = uint(newObject.IndexCount()); //Numero de indices necessarios para desenhar o objeto
     newSubMesh.startIndex = totalIndexCount; //Onde inicia no vetor de vertices
-    newSubMesh.baseVertex = totalVertexCount;
+    newSubMesh.baseVertex = totalVertexCount; //Indice de vertice que ele considera o "0" no vetor de vertices
 
     Object obj; //Criando Objeto pra colocar na cena
     XMStoreFloat4x4(&obj.world,
         XMMatrixScaling(scaleX, scaleY, scaleZ) *
-        XMMatrixTranslation(0.0f, 0.0f, 0.0f)); //Movimento ele no mundo
+        XMMatrixTranslation(0.0f, 0.0f, 0.0f)); //Movimentando ele no mundo
     obj.cbIndex = objectsInScene; //Index no Buffer
     obj.submesh = newSubMesh; //SubMesh do objeto
     scene.push_back(obj); //Adicionando no vetor de cenas
@@ -133,13 +133,12 @@ void Single::DeleteObjectToScene() {
 
     if (tab != -1 && objectsInScene > 0) {
         graphics->ResetCommands();
+
         //Calcular novos tamanhos de Index size e VertexSize;
         //Precisa tirar objeto do vetor da cena
         //Precisa tirar os indices do objeto do vetor de indices
         //Precisa tirar os vertices do objeto do vetor de vertices
         //Precisa atualizar todos os parametros dos objetos que nao foram deletados
-        
-
         
         graphics->SubmitCommands();
     }
@@ -158,13 +157,13 @@ void Single::SelectObjectInScene() {
      static int lastTab = tab - 1; //Ultimo Tab
 
      if (lastTab > -1) {
-        for (int i = objLocation[lastTab].beginVertex; i < objLocation[lastTab].endVertex; i++) {
-            vertices[i].color = XMFLOAT4(DirectX::Colors::DimGray);
+         for (int i{}; i < objLocation[lastTab].vertexCount; i++) {
+            vertices[objLocation[lastTab].baseVertex + i].color = XMFLOAT4(DirectX::Colors::DimGray);
         }
      }
 
-     for (int i = objLocation[tab].beginVertex; i < objLocation[tab].endVertex; i++) {
-        vertices[i].color = XMFLOAT4(DirectX::Colors::Red);
+     for (int i{}; i < objLocation[tab].vertexCount; i++) {
+        vertices[objLocation[tab].baseVertex + i].color = XMFLOAT4(DirectX::Colors::Red);
      }
 
      lastTab = tab;
@@ -237,18 +236,17 @@ void Single::Init()
     // junta todos os vértices em um único vetor
     vertices = new Vertex[totalVertexCount];
     objLocation = new Location[objAmount];
-    objLocation[0].beginVertex = 0; //Inicio do primeiro obj no vetor de vertices
+   
     for (uint i = 0; i < grid.VertexCount(); ++i)
     {
         vertices[i].pos = grid.vertices[i].pos;
         vertices[i].color = XMFLOAT4(DirectX::Colors::DimGray);
     }
 
-    objLocation[0].endVertex = totalVertexCount; //Fim do objeto no vetor de vertices
-    
+    objLocation[0] = Location{ 0, (int)grid.VertexCount() }; //BaseVertex e tamanho do objeto
    
     // junta todos os índices em um único vetor
-    /*Refazer uma logica propria para vetor de indices*/
+    /*Talvez refazer uma logica propria para vetor de indices*/
     indices.insert(indices.end(), begin(grid.indices), end(grid.indices));
 
     // ------------------------
@@ -378,8 +376,8 @@ void Single::Update()
         if (input->KeyPress('K') || input->KeyPress('k')) {
             graphics->ResetCommands();
             if (tab != -1) {
-                for (int i = objLocation[tab].beginVertex; i < objLocation[tab].endVertex; i++) {
-                    vertices[i].color = XMFLOAT4(DirectX::Colors::DimGray);
+                for (int i{}; i < objLocation[tab].vertexCount; i++) {
+                    vertices[objLocation[tab].baseVertex + i].color = XMFLOAT4(DirectX::Colors::DimGray);
                 }
             }
 
@@ -505,18 +503,20 @@ void Single::Draw()
     graphics->CommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     
     // desenha objetos da cena
-    for (auto& obj : scene)
-    {
-        if (obj.cbIndex != -1) {
-            // ajusta o buffer constante associado ao vertex shader
-            graphics->CommandList()->SetGraphicsRootDescriptorTable(0, mesh->ConstantBufferHandle(obj.cbIndex));
+    if (objectsInScene > 0) {
+        for (auto& obj : scene)
+        {
+            if (obj.cbIndex != -1) {
+                // ajusta o buffer constante associado ao vertex shader
+                graphics->CommandList()->SetGraphicsRootDescriptorTable(0, mesh->ConstantBufferHandle(obj.cbIndex));
 
-            // desenha objeto
-            graphics->CommandList()->DrawIndexedInstanced(
-                obj.submesh.indexCount, 1,
-                obj.submesh.startIndex,
-                obj.submesh.baseVertex,
-                0);
+                // desenha objeto
+                graphics->CommandList()->DrawIndexedInstanced(
+                    obj.submesh.indexCount, 1,
+                    obj.submesh.startIndex,
+                    obj.submesh.baseVertex,
+                    0);
+            }
         }
     }
  

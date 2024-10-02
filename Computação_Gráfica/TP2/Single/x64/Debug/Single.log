@@ -1,4 +1,4 @@
 ﻿  Single.cpp
 C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(154,14): warning C4018: '>=': incompatibilidade de signed/unsigned
-C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(310,29): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\Single\Single.cpp(309,29): warning C4018: '<': incompatibilidade de signed/unsigned
   Single.vcxproj -> C:\Users\Cliente\Desktop\Faculdade\periodo 7\Computação Grafica\Trabalho pratico 2\Lab19\Single\x64\Debug\Single.exe
