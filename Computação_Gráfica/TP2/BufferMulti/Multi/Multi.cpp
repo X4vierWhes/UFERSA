@@ -261,7 +261,24 @@ void Multi::ObjectRotation(float x, float y, float z) {
 }
 
 void Multi::ObjectTranslate(float x, float y, float z){
+    graphics->ResetCommands();
+    //Matriz de mundo
+    XMMATRIX w = XMLoadFloat4x4(&scene[tab].world);
 
+    //Realizando translação
+    XMMATRIX t = XMMatrixTranslation(x, y, z);
+
+    XMMATRIX newWorld = t*w;
+
+    XMStoreFloat4x4(&scene[tab].world, newWorld);
+
+    XMMATRIX wvp = newWorld * XMLoadFloat4x4(&View) * XMLoadFloat4x4(&Proj);
+
+    ObjectConstants constants;
+    XMStoreFloat4x4(&constants.WorldViewProj, XMMatrixTranspose(wvp));
+    scene[tab].mesh->CopyConstants(&constants);
+
+    graphics->SubmitCommands();
 }
 // ------------------------------------------------------------------------------
 
@@ -365,6 +382,54 @@ void Multi::Update()
             OutputDebugString("Entrei");
             if (tab > -1 && tab < scene.size()) {
                 ObjectRotation(0.0f, 0.0f, -10.0f);
+            }
+        }
+
+        //Translacionar no eixo X para direita
+        if (input->KeyDown(VK_CONTROL) && (input->KeyDown('X') || input->KeyDown('x')) && input->KeyPress(VK_RIGHT)) {
+            OutputDebugString("Entrei");
+            if (tab > -1 && tab < scene.size()) {
+                ObjectTranslate(2.0f, 0.0f, 0.0f);
+            }
+        }
+
+        //Translacionar no eixo X para esquerda
+        if (input->KeyDown(VK_CONTROL) && (input->KeyDown('X') || input->KeyDown('x')) && input->KeyPress(VK_LEFT)) {
+            OutputDebugString("Entrei");
+            if (tab > -1 && tab < scene.size()) {
+                ObjectTranslate(-2.0f, 0.0f, 0.0f);
+            }
+        }
+
+        //Translacionar no eixo Y para cima
+        if (input->KeyDown(VK_CONTROL) && (input->KeyDown('Y') || input->KeyDown('y')) && input->KeyPress(VK_DOWN)) {
+            OutputDebugString("Entrei");
+            if (tab > -1 && tab < scene.size()) {
+                ObjectTranslate(0.0f, -2.0f, 0.0f);
+            }
+        }
+
+        //Translacionar no eixo Y para baixo
+        if (input->KeyDown(VK_CONTROL) && (input->KeyDown('Y') || input->KeyDown('y')) && input->KeyPress(VK_UP)) {
+            OutputDebugString("Entrei");
+            if (tab > -1 && tab < scene.size()) {
+                ObjectTranslate(0.0f, 2.0f, 0.0f);
+            }
+        }
+
+        //Translacionar no eixo Z para tras
+        if (input->KeyDown(VK_CONTROL) && (input->KeyDown('Z') || input->KeyDown('Z')) && input->KeyPress(VK_UP)) {
+            OutputDebugString("Entrei");
+            if (tab > -1 && tab < scene.size()) {
+                ObjectTranslate(0.0f, 0.0f, -2.0f);
+            }
+        }
+
+        //Translacionar no eixo Z para frente
+        if (input->KeyDown(VK_CONTROL) && (input->KeyDown('Z') || input->KeyDown('Z')) && input->KeyPress(VK_DOWN)) {
+            OutputDebugString("Entrei");
+            if (tab > -1 && tab < scene.size()) {
+                ObjectTranslate(0.0f, 0.0f, 2.0f);
             }
         }
     }
