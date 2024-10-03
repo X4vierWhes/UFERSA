@@ -54,6 +54,9 @@ public:
     void DeleteObjectToScene();
     void SelectObjectInScene();
     void DeselectObject();
+    void ObjectScale(float x, float y, float z);
+    void ObjectRotation(float x, float y, float z);
+    void ObjectTranslate(float x, float y, float z);
 
     void BuildRootSignature();
     void BuildPipelineState();
@@ -214,6 +217,52 @@ void Multi::DeselectObject() {
     graphics->SubmitCommands();
 }
 
+void Multi::ObjectScale(float x, float y, float z) {
+    graphics->ResetCommands();
+    //Mudando escala
+    XMMATRIX newWorld = XMMatrixScaling(x, y, z) * XMLoadFloat4x4(&scene[tab].world);
+    XMStoreFloat4x4(&scene[tab].world,
+        newWorld
+    );
+
+    ObjectConstants constants;
+    XMMATRIX wvp = newWorld * XMLoadFloat4x4(&View) * XMLoadFloat4x4(&Proj);
+    XMStoreFloat4x4(&constants.WorldViewProj, XMMatrixTranspose(wvp));
+    scene[tab].mesh->CopyConstants(&constants);
+
+    graphics->SubmitCommands();
+}
+
+void Multi::ObjectRotation(float x, float y, float z) {
+    graphics->ResetCommands();
+    //Convertendo para radianos
+    x = XMConvertToRadians(x);
+    y = XMConvertToRadians(y);
+    z = XMConvertToRadians(z);
+
+    XMMATRIX w = XMLoadFloat4x4(&scene[tab].world);
+
+    //Aplica rotação
+    w = XMMatrixRotationX(x) * XMMatrixRotationY(y) * XMMatrixRotationZ(z) * w;
+
+
+    XMStoreFloat4x4(&scene[tab].world,
+        w);
+
+    //Atualiza o buffer
+    XMMATRIX wvp = w * XMLoadFloat4x4(&View) * XMLoadFloat4x4(&Proj);
+
+    ObjectConstants constants;
+    XMStoreFloat4x4(&constants.WorldViewProj, XMMatrixTranspose(wvp));
+    scene[tab].mesh->CopyConstants(&constants);
+
+
+    graphics->SubmitCommands();
+}
+
+void Multi::ObjectTranslate(float x, float y, float z){
+
+}
 // ------------------------------------------------------------------------------
 
 void Multi::Update()
@@ -277,6 +326,46 @@ void Multi::Update()
         //Tab para selecionar figura
         if (input->KeyPress(VK_TAB)) {
             SelectObjectInScene();
+        }
+
+        //Aumentar escala do objeto selecionado com combinação de teclas
+        if (input->KeyDown(VK_CONTROL) && ((input->KeyDown('E') || input->KeyDown('e')) && input->KeyPress(VK_UP))){
+            OutputDebugString("Entrei");
+            if (tab > -1 && tab < scene.size() ) {
+                ObjectScale(1.1f, 1.1f, 1.1f);
+            }
+        }
+
+        //Diminuir escala do objeto selecionado com combinação de teclas
+        if (input->KeyDown(VK_CONTROL) && ((input->KeyDown('E') || input->KeyDown('e')) && input->KeyPress(VK_DOWN))) {
+            OutputDebugString("Entrei");
+            if (tab > -1 && tab < scene.size()) {
+                ObjectScale(0.9f, 0.9f, 0.9f);
+            }
+        }
+
+        //Rodar no eixo X
+        if (input->KeyDown(VK_CONTROL) && (input->KeyDown('X') || input->KeyDown('x')) && (input->KeyPress('R') || (input->KeyPress('r')))) {
+            OutputDebugString("Entrei");
+            if (tab > -1 && tab < scene.size()) {
+                ObjectRotation(-10.0f, 0.0f, 0.0f);
+            }
+        }
+
+        //Rodar no eixo Y
+        if (input->KeyDown(VK_CONTROL) && (input->KeyDown('Y') || input->KeyDown('y')) && (input->KeyPress('R') || (input->KeyPress('r')))) {
+            OutputDebugString("Entrei");
+            if (tab > -1 && tab < scene.size()) {
+                ObjectRotation(0.0f, -10.0f, 0.0f);
+            }
+        }
+
+        //Rodar no eixo Z
+        if (input->KeyDown(VK_CONTROL) && (input->KeyDown('Z') || input->KeyDown('z')) && (input->KeyPress('R') || (input->KeyPress('r')))) {
+            OutputDebugString("Entrei");
+            if (tab > -1 && tab < scene.size()) {
+                ObjectRotation(0.0f, 0.0f, -10.0f);
+            }
         }
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
