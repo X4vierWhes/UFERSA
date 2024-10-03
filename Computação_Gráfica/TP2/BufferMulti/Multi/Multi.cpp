@@ -389,47 +389,43 @@ void Multi::Update()
         if (input->KeyDown(VK_CONTROL) && (input->KeyDown('X') || input->KeyDown('x')) && input->KeyPress(VK_RIGHT)) {
             OutputDebugString("Entrei");
             if (tab > -1 && tab < scene.size()) {
-                ObjectTranslate(2.0f, 0.0f, 0.0f);
+                ObjectTranslate(1.0f, 0.0f, 0.0f);
             }
         }
 
         //Translacionar no eixo X para esquerda
         if (input->KeyDown(VK_CONTROL) && (input->KeyDown('X') || input->KeyDown('x')) && input->KeyPress(VK_LEFT)) {
-            OutputDebugString("Entrei");
+
             if (tab > -1 && tab < scene.size()) {
-                ObjectTranslate(-2.0f, 0.0f, 0.0f);
+                ObjectTranslate(-1.0f, 0.0f, 0.0f);
             }
         }
 
         //Translacionar no eixo Y para cima
         if (input->KeyDown(VK_CONTROL) && (input->KeyDown('Y') || input->KeyDown('y')) && input->KeyPress(VK_DOWN)) {
-            OutputDebugString("Entrei");
             if (tab > -1 && tab < scene.size()) {
-                ObjectTranslate(0.0f, -2.0f, 0.0f);
+                ObjectTranslate(0.0f, -1.0f, 0.0f);
             }
         }
 
         //Translacionar no eixo Y para baixo
         if (input->KeyDown(VK_CONTROL) && (input->KeyDown('Y') || input->KeyDown('y')) && input->KeyPress(VK_UP)) {
-            OutputDebugString("Entrei");
             if (tab > -1 && tab < scene.size()) {
-                ObjectTranslate(0.0f, 2.0f, 0.0f);
+                ObjectTranslate(0.0f, 1.0f, 0.0f);
             }
         }
 
         //Translacionar no eixo Z para tras
-        if (input->KeyDown(VK_CONTROL) && (input->KeyDown('Z') || input->KeyDown('Z')) && input->KeyPress(VK_UP)) {
-            OutputDebugString("Entrei");
+        if (input->KeyDown(VK_CONTROL) && (input->KeyDown('Z') || input->KeyDown('Z')) && input->KeyPress(VK_RIGHT)) {
             if (tab > -1 && tab < scene.size()) {
-                ObjectTranslate(0.0f, 0.0f, -2.0f);
+                ObjectTranslate(0.0f, 0.0f, -1.0f);
             }
         }
 
         //Translacionar no eixo Z para frente
-        if (input->KeyDown(VK_CONTROL) && (input->KeyDown('Z') || input->KeyDown('Z')) && input->KeyPress(VK_DOWN)) {
-            OutputDebugString("Entrei");
+        if (input->KeyDown(VK_CONTROL) && (input->KeyDown('Z') || input->KeyDown('Z')) && input->KeyPress(VK_LEFT)) {
             if (tab > -1 && tab < scene.size()) {
-                ObjectTranslate(0.0f, 0.0f, 2.0f);
+                ObjectTranslate(0.0f, 0.0f, 1.0f);
             }
         }
     }
