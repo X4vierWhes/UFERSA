@@ -28,7 +28,7 @@ class Multi : public App
 {
 private:
     ID3D12RootSignature* rootSignature = nullptr;
-    ID3D12PipelineState* pipelineState = nullptr;
+    ID3D12PipelineState* pipelineState[2];
     vector<Object> scene;
     vector<Geometry> vertices;
     Timer timer;
@@ -38,12 +38,22 @@ private:
     XMFLOAT4X4 View = {};
     XMFLOAT4X4 Proj = {};
 
+    XMFLOAT4X4 viewFront; 
+    XMFLOAT4X4 viewTop;
+    XMFLOAT4X4 viewSide;
+    D3D12_VIEWPORT views[4];
+
     float theta = 0;
     float phi = 0;
     float radius = 0;
     float lastMousePosX = 0;
     float lastMousePosY = 0;
     int tab = -1;
+    bool viewport = false;
+
+
+    Mesh* LinhasDivisorias;
+    Vertex linhas[4] = {};
 
 public:
     void Init();
@@ -53,6 +63,8 @@ public:
     void AddObjectToScene(Geometry& newObj, float scaleX, float scaleY, float scaleZ);
     void DeleteObjectToScene();
     void SelectObjectInScene();
+    void StartViewPorts();
+    void StartDivisionLines();
     void DeselectObject();
     void ObjectScale(float x, float y, float z);
     void ObjectRotation(float x, float y, float z);
@@ -112,11 +124,15 @@ void Multi::Init()
     gridObj.world = Identity;
     gridObj.mesh->VertexBuffer(grid.VertexData(), grid.VertexCount() * sizeof(Vertex), sizeof(Vertex));
     gridObj.mesh->IndexBuffer(grid.IndexData(), grid.IndexCount() * sizeof(uint), DXGI_FORMAT_R32_UINT);
-    gridObj.mesh->ConstantBuffer(sizeof(ObjectConstants));
+    gridObj.mesh->ConstantBuffer(sizeof(ObjectConstants), 4);
     gridObj.submesh.indexCount = grid.IndexCount();
     scene.push_back(gridObj);
  
     // ---------------------------------------
+    //Inicializa as viewports
+    StartViewPorts();
+    //Inicializa linhas divisorias
+    StartDivisionLines();
 
     BuildRootSignature();
     BuildPipelineState();    
@@ -125,6 +141,40 @@ void Multi::Init()
     graphics->SubmitCommands();
 
     timer.Start();
+}
+
+void Multi::StartViewPorts() {
+    // viewport esquerda cima
+    views[0] = { 0.0f, 0.0f, float(window->Width() / 2), float(window->Height() / 2), 0.0f, 1.0f };
+
+    // viewport direita cima
+    views[1] = { float(window->Width() / 2), 0.0f, float(window->Width() / 2), float(window->Height() / 2), 0.0f, 1.0f };
+    
+    //viewport esquerda baixo
+    views[2] = { 0.0f, float(window->Height() / 2), float(window->Width() / 2), float(window->Height() / 2), 0.0f, 1.0f };
+
+    //viewport direita baixo
+    views[3] = { float(window->Width() / 2), float(window->Height() / 2), float(window->Width() / 2), float(window->Height() / 2), 0.0f, 1.0f };
+}
+
+void Multi::StartDivisionLines() {
+    LinhasDivisorias = new Mesh();
+
+    float screenWidth = (float)window->Width();
+    float screenHeight = (float)window->Height();
+
+    linhas[0] = {XMFLOAT3(0.0f, -1.0f, 0.0f), XMFLOAT4(DirectX::Colors::White)};
+    linhas[1] = { XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT4(DirectX::Colors::White) };
+    linhas[2] = { XMFLOAT3(-1.0f, 0.0f, 0.0f), XMFLOAT4(DirectX::Colors::White) };
+    linhas[3] = { XMFLOAT3(1.0f, 0.0f, 0.0f), XMFLOAT4(DirectX::Colors::White) };
+    
+    int indexBuffer[4] = { 0,1,2,3 };
+    
+    ObjectConstants constants;
+    LinhasDivisorias->VertexBuffer(linhas, sizeof(Vertex) * 4, sizeof(Vertex));
+    LinhasDivisorias->IndexBuffer(indexBuffer, sizeof(int) * 4, DXGI_FORMAT_R32_UINT);
+    LinhasDivisorias->ConstantBuffer(sizeof(constants));
+    LinhasDivisorias->CopyConstants(&constants);   
 }
 
 void Multi::AddObjectToScene(Geometry& newObj, float scaleX, float scaleY, float scaleZ) {
@@ -142,7 +192,7 @@ void Multi::AddObjectToScene(Geometry& newObj, float scaleX, float scaleY, float
     obj.mesh = new Mesh();
     obj.mesh->VertexBuffer(newObj.VertexData(), newObj.VertexCount() * sizeof(Vertex), sizeof(Vertex));
     obj.mesh->IndexBuffer(newObj.IndexData(), newObj.IndexCount() * sizeof(uint), DXGI_FORMAT_R32_UINT);
-    obj.mesh->ConstantBuffer(sizeof(ObjectConstants));
+    obj.mesh->ConstantBuffer(sizeof(ObjectConstants), 4);
     obj.submesh.indexCount = newObj.IndexCount();
     scene.push_back(obj);
 
@@ -164,13 +214,13 @@ void Multi::SelectObjectInScene() {
     // Reverte a cor do objeto atual antes de selecionar o próximo
     if (!scene.empty() && tab >= 0) {
         for (auto& v : vertices[tab].vertices) {
-            v.color = XMFLOAT4(DirectX::Colors::DimGray); // ou a cor padrão que você deseja
+            v.color = XMFLOAT4(DirectX::Colors::DimGray); 
         }
 
         // Atualiza o buffer do objeto anterior
         scene[tab].mesh->VertexBuffer(vertices[tab].VertexData(), vertices[tab].VertexCount() * sizeof(Vertex), sizeof(Vertex));
         scene[tab].mesh->IndexBuffer(vertices[tab].IndexData(), vertices[tab].IndexCount() * sizeof(uint), DXGI_FORMAT_R32_UINT);
-        scene[tab].mesh->ConstantBuffer(sizeof(ObjectConstants));
+        scene[tab].mesh->ConstantBuffer(sizeof(ObjectConstants), 4);
         scene[tab].submesh.indexCount = vertices[tab].IndexCount();
     }
 
@@ -191,7 +241,7 @@ void Multi::SelectObjectInScene() {
         // Atualiza o buffer do objeto novo
         scene[tab].mesh->VertexBuffer(vertices[tab].VertexData(), vertices[tab].VertexCount() * sizeof(Vertex), sizeof(Vertex));
         scene[tab].mesh->IndexBuffer(vertices[tab].IndexData(), vertices[tab].IndexCount() * sizeof(uint), DXGI_FORMAT_R32_UINT);
-        scene[tab].mesh->ConstantBuffer(sizeof(ObjectConstants));
+        scene[tab].mesh->ConstantBuffer(sizeof(ObjectConstants), 4);
         scene[tab].submesh.indexCount = vertices[tab].IndexCount();
     }
 
@@ -209,7 +259,7 @@ void Multi::DeselectObject() {
         // Atualiza o buffer do objeto
         scene[tab].mesh->VertexBuffer(vertices[tab].VertexData(), vertices[tab].VertexCount() * sizeof(Vertex), sizeof(Vertex));
         scene[tab].mesh->IndexBuffer(vertices[tab].IndexData(), vertices[tab].IndexCount() * sizeof(uint), DXGI_FORMAT_R32_UINT);
-        scene[tab].mesh->ConstantBuffer(sizeof(ObjectConstants));
+        scene[tab].mesh->ConstantBuffer(sizeof(ObjectConstants), 4);
         scene[tab].submesh.indexCount = vertices[tab].IndexCount();
     }
 
@@ -355,7 +405,6 @@ void Multi::Update()
 
         //Diminuir escala do objeto selecionado com combinação de teclas
         if (input->KeyDown(VK_CONTROL) && ((input->KeyDown('E') || input->KeyDown('e')) && input->KeyPress(VK_DOWN))) {
-            OutputDebugString("Entrei");
             if (tab > -1 && tab < scene.size()) {
                 ObjectScale(0.9f, 0.9f, 0.9f);
             }
@@ -371,7 +420,6 @@ void Multi::Update()
 
         //Rodar no eixo Y
         if (input->KeyDown(VK_CONTROL) && (input->KeyDown('Y') || input->KeyDown('y')) && (input->KeyPress('R') || (input->KeyPress('r')))) {
-            OutputDebugString("Entrei");
             if (tab > -1 && tab < scene.size()) {
                 ObjectRotation(0.0f, -10.0f, 0.0f);
             }
@@ -379,7 +427,6 @@ void Multi::Update()
 
         //Rodar no eixo Z
         if (input->KeyDown(VK_CONTROL) && (input->KeyDown('Z') || input->KeyDown('z')) && (input->KeyPress('R') || (input->KeyPress('r')))) {
-            OutputDebugString("Entrei");
             if (tab > -1 && tab < scene.size()) {
                 ObjectRotation(0.0f, 0.0f, -10.0f);
             }
@@ -395,7 +442,6 @@ void Multi::Update()
 
         //Translacionar no eixo X para esquerda
         if (input->KeyDown(VK_CONTROL) && (input->KeyDown('X') || input->KeyDown('x')) && input->KeyPress(VK_LEFT)) {
-
             if (tab > -1 && tab < scene.size()) {
                 ObjectTranslate(-1.0f, 0.0f, 0.0f);
             }
@@ -429,6 +475,12 @@ void Multi::Update()
             }
         }
     }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //Comando de mudança de visualização
+    if (input->KeyPress('V') || input->KeyPress('v')) {
+        viewport = !viewport; //Inverte booleano
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // sai com o pressionamento da tecla ESC
     if (input->KeyPress(VK_ESCAPE))
@@ -483,29 +535,79 @@ void Multi::Update()
     float z = radius * sinf(phi) * sinf(theta);
     float y = radius * cosf(phi);
 
-    // constrói a matriz da câmera (view matrix)
-    XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
-    XMVECTOR target = XMVectorZero();
-    XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
-    XMStoreFloat4x4(&View, view);
-
-    // carrega matriz de projeção em uma XMMATRIX
-    XMMATRIX proj = XMLoadFloat4x4(&Proj);
-
-    // ajusta o buffer constante de cada objeto
-    for (auto & obj : scene)
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //Visões 
     {
-        // carrega matriz de mundo em uma XMMATRIX
-        XMMATRIX world = XMLoadFloat4x4(&obj.world);      
+        // constrói a matriz da câmera (view matrix) Pespectiva
+        XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
+        XMVECTOR target = XMVectorZero();
+        XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+        XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
+        XMStoreFloat4x4(&View, view);
 
-        // constrói matriz combinada (world x view x proj)
-        XMMATRIX WorldViewProj = world * view * proj;        
+        // carrega matriz de projeção em uma XMMATRIX
+        XMMATRIX proj = XMLoadFloat4x4(&Proj);
 
-        // atualiza o buffer constante com a matriz combinada
-        ObjectConstants constants;
-        XMStoreFloat4x4(&constants.WorldViewProj, XMMatrixTranspose(WorldViewProj));
-        obj.mesh->CopyConstants(&constants);
+        // projeção ortográfica
+        XMMATRIX O = XMMatrixOrthographicLH(5, 5, 1.0f, 100.0f);
+
+        // matriz de visualização ortografica e visao cima
+        XMVECTOR posUp = XMVectorSet(0, 10, 0, 1);
+        XMVECTOR targetUp = XMVectorZero();
+        XMVECTOR upUp = XMVectorSet(0, 0, -1, 0);
+        XMMATRIX VUp = XMMatrixLookAtLH(posUp, targetUp, upUp);
+
+        // matriz de visualização ortográfica para a visão frontal
+        XMVECTOR posFront = XMVectorSet(0, 0, -10, 1); // Alterado para -10 em X
+        XMVECTOR targetFront = XMVectorZero();
+        XMVECTOR upFront = XMVectorSet(0, 1, 0, 0); // Mantido como (0, 1, 0)
+        XMMATRIX VFront = XMMatrixLookAtLH(posFront, targetFront, upFront);
+
+        // matriz de visualização ortográfica para a visão direita
+        XMVECTOR posSide = XMVectorSet(10, 0, 0, 1); // Alterado para 10 em X
+        XMVECTOR targetSide = XMVectorZero();
+        XMVECTOR upSide = XMVectorSet(0, 1, 0, 0); // Mantido como (0, 1, 0)
+        XMMATRIX VSide = XMMatrixLookAtLH(posSide, targetSide, upSide);
+
+        // ajusta o buffer constante de cada objeto
+
+        for (auto& obj : scene)
+        {
+            // carrega matriz de mundo em uma XMMATRIX
+            XMMATRIX world = XMLoadFloat4x4(&obj.world);
+
+            // constrói matriz combinada (world x view x proj)
+            XMMATRIX WorldViewProj = world * view * proj;
+
+            // atualiza o buffer constante com a matriz combinada
+            ObjectConstants constants;
+            XMStoreFloat4x4(&constants.WorldViewProj, XMMatrixTranspose(WorldViewProj));
+            obj.mesh->CopyConstants(&constants); //Pespectiva
+
+            /////////////////////////////////////////////////////////////////////
+            // constrói matriz combinada (world x view x proj)
+            WorldViewProj = world * VFront * O;
+
+            // atualiza o buffer constante com a matriz combinada
+            XMStoreFloat4x4(&constants.WorldViewProj, XMMatrixTranspose(WorldViewProj));
+            obj.mesh->CopyConstants(&constants, 1); //Ortogonal FRONT
+
+            /////////////////////////////////////////////////////////////////////
+            // constrói matriz combinada (world x view x proj)
+            WorldViewProj = world * VUp * O;
+
+            // atualiza o buffer constante com a matriz combinada
+            XMStoreFloat4x4(&constants.WorldViewProj, XMMatrixTranspose(WorldViewProj));
+            obj.mesh->CopyConstants(&constants, 2); //Ortogonal UP
+
+            /////////////////////////////////////////////////////////////////////
+            // constrói matriz combinada (world x view x proj)
+            WorldViewProj = world * VSide * O;
+
+            // atualiza o buffer constante com a matriz combinada
+            XMStoreFloat4x4(&constants.WorldViewProj, XMMatrixTranspose(WorldViewProj));
+            obj.mesh->CopyConstants(&constants, 3); //Ortogonal SIDE
+        }
     }
 }
 
@@ -514,28 +616,75 @@ void Multi::Update()
 void Multi::Draw()
 {
     // limpa o backbuffer
-    graphics->Clear(pipelineState);
-    
-    // desenha objetos da cena
-    for (auto& obj : scene)
-    {
-        // comandos de configuração do pipeline
-        ID3D12DescriptorHeap* descriptorHeap = obj.mesh->ConstantBufferHeap();
-        graphics->CommandList()->SetDescriptorHeaps(1, &descriptorHeap);
+    graphics->Clear(pipelineState[0]);
+    if (!viewport) {
+        // desenha objetos da cena
+        for (auto& obj : scene)
+        {
+            // comandos de configuração do pipeline
+            ID3D12DescriptorHeap* descriptorHeap = obj.mesh->ConstantBufferHeap();
+            graphics->CommandList()->SetDescriptorHeaps(1, &descriptorHeap);
+            graphics->CommandList()->SetGraphicsRootSignature(rootSignature);
+            graphics->CommandList()->IASetVertexBuffers(0, 1, obj.mesh->VertexBufferView());
+            graphics->CommandList()->IASetIndexBuffer(obj.mesh->IndexBufferView());
+            graphics->CommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+            // ajusta o buffer constante associado ao vertex shader
+            graphics->CommandList()->SetGraphicsRootDescriptorTable(0, obj.mesh->ConstantBufferHandle(0));
+
+            // desenha objeto
+            graphics->CommandList()->DrawIndexedInstanced(
+                obj.submesh.indexCount, 1,
+                obj.submesh.startIndex,
+                obj.submesh.baseVertex,
+                0);
+        }
+    }
+    else {
+        graphics->CommandList()->SetPipelineState(pipelineState[1]);
+        ID3D12DescriptorHeap* descriptorHeapLinhas = LinhasDivisorias->ConstantBufferHeap();
+        graphics->CommandList()->SetDescriptorHeaps(1, &descriptorHeapLinhas);
         graphics->CommandList()->SetGraphicsRootSignature(rootSignature);
-        graphics->CommandList()->IASetVertexBuffers(0, 1, obj.mesh->VertexBufferView());
-        graphics->CommandList()->IASetIndexBuffer(obj.mesh->IndexBufferView());
-        graphics->CommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        graphics->CommandList()->IASetVertexBuffers(0, 1, LinhasDivisorias->VertexBufferView());
+        graphics->CommandList()->IASetIndexBuffer(LinhasDivisorias->IndexBufferView());
+        graphics->CommandList()->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_LINELIST);
 
         // ajusta o buffer constante associado ao vertex shader
-        graphics->CommandList()->SetGraphicsRootDescriptorTable(0, obj.mesh->ConstantBufferHandle(0));
+        graphics->CommandList()->SetGraphicsRootDescriptorTable(0,LinhasDivisorias->ConstantBufferHandle(0));
 
         // desenha objeto
         graphics->CommandList()->DrawIndexedInstanced(
-            obj.submesh.indexCount, 1,
-            obj.submesh.startIndex,
-            obj.submesh.baseVertex,
+            4, 1,
+            0,
+            0,
             0);
+
+        graphics->CommandList()->SetPipelineState(pipelineState[0]);
+        for (int i{}; i < 4; i++) {
+
+            graphics->CommandList()->RSSetViewports(1, &views[i]);
+
+            for (auto& obj : scene)
+            {
+                // comandos de configuração do pipeline
+                ID3D12DescriptorHeap* descriptorHeap = obj.mesh->ConstantBufferHeap();
+                graphics->CommandList()->SetDescriptorHeaps(1, &descriptorHeap);
+                graphics->CommandList()->SetGraphicsRootSignature(rootSignature);
+                graphics->CommandList()->IASetVertexBuffers(0, 1, obj.mesh->VertexBufferView());
+                graphics->CommandList()->IASetIndexBuffer(obj.mesh->IndexBufferView());
+                graphics->CommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+                // ajusta o buffer constante associado ao vertex shader
+                graphics->CommandList()->SetGraphicsRootDescriptorTable(0, obj.mesh->ConstantBufferHandle(i));
+
+                // desenha objeto
+                graphics->CommandList()->DrawIndexedInstanced(
+                    obj.submesh.indexCount, 1,
+                    obj.submesh.startIndex,
+                    obj.submesh.baseVertex,
+                    0);
+            }
+        }
     }
  
     // apresenta o backbuffer na tela
@@ -547,7 +696,10 @@ void Multi::Draw()
 void Multi::Finalize()
 {
     rootSignature->Release();
-    pipelineState->Release();
+    pipelineState[0]->Release();
+    pipelineState[1]->Release();
+
+    delete LinhasDivisorias;
 
     for (auto& obj : scene)
         delete obj.mesh;
@@ -702,7 +854,10 @@ void Multi::BuildPipelineState()
     pso.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
     pso.SampleDesc.Count = graphics->Antialiasing();
     pso.SampleDesc.Quality = graphics->Quality();
-    graphics->Device()->CreateGraphicsPipelineState(&pso, IID_PPV_ARGS(&pipelineState));
+    graphics->Device()->CreateGraphicsPipelineState(&pso, IID_PPV_ARGS(&pipelineState[0]));
+
+    pso.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+    graphics->Device()->CreateGraphicsPipelineState(&pso, IID_PPV_ARGS(&pipelineState[1]));
 
     vertexShader->Release();
     pixelShader->Release();
