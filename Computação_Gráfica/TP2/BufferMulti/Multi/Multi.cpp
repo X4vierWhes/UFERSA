@@ -10,7 +10,8 @@
 **********************************************************************************/
 
 #include "DXUT.h"
-
+#include <fstream>
+#include <sstream>
 // ------------------------------------------------------------------------------
 
 struct ObjectConstants
@@ -28,7 +29,7 @@ class Multi : public App
 {
 private:
     ID3D12RootSignature* rootSignature = nullptr;
-    ID3D12PipelineState* pipelineState[2];
+    ID3D12PipelineState* pipelineState[2]; //Criar duas pipeline state
     vector<Object> scene;
     vector<Geometry> vertices;
     Timer timer;
@@ -38,9 +39,6 @@ private:
     XMFLOAT4X4 View = {};
     XMFLOAT4X4 Proj = {};
 
-    XMFLOAT4X4 viewFront; 
-    XMFLOAT4X4 viewTop;
-    XMFLOAT4X4 viewSide;
     D3D12_VIEWPORT views[4];
 
     float theta = 0;
@@ -52,8 +50,8 @@ private:
     bool viewport = false;
 
 
-    Mesh* LinhasDivisorias;
-    Vertex linhas[4] = {};
+    Mesh* LinhasDivisorias; //Malha para linhas que dividem a tela
+    Vertex linhas[4] = {}; //Vetor de vertices para as linhas
 
 public:
     void Init();
@@ -69,6 +67,7 @@ public:
     void ObjectScale(float x, float y, float z);
     void ObjectRotation(float x, float y, float z);
     void ObjectTranslate(float x, float y, float z);
+    void LoadObject(const std::string& filename);
 
     void BuildRootSignature();
     void BuildPipelineState();
@@ -163,12 +162,12 @@ void Multi::StartDivisionLines() {
     float screenWidth = (float)window->Width();
     float screenHeight = (float)window->Height();
 
-    linhas[0] = {XMFLOAT3(0.0f, -1.0f, 0.0f), XMFLOAT4(DirectX::Colors::White)};
-    linhas[1] = { XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT4(DirectX::Colors::White) };
-    linhas[2] = { XMFLOAT3(-1.0f, 0.0f, 0.0f), XMFLOAT4(DirectX::Colors::White) };
-    linhas[3] = { XMFLOAT3(1.0f, 0.0f, 0.0f), XMFLOAT4(DirectX::Colors::White) };
+    linhas[0] = {XMFLOAT3(0.0f, -1.0f, 0.0f), XMFLOAT4(DirectX::Colors::White)}; //Inicio Y
+    linhas[1] = { XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT4(DirectX::Colors::White) }; //Fim Y
+    linhas[2] = { XMFLOAT3(-1.0f, 0.0f, 0.0f), XMFLOAT4(DirectX::Colors::White) }; //Inicio X
+    linhas[3] = { XMFLOAT3(1.0f, 0.0f, 0.0f), XMFLOAT4(DirectX::Colors::White) }; //Fim Y
     
-    int indexBuffer[4] = { 0,1,2,3 };
+    int indexBuffer[4] = { 0,1,2,3 }; //Ordem dos indices
     
     ObjectConstants constants;
     LinhasDivisorias->VertexBuffer(linhas, sizeof(Vertex) * 4, sizeof(Vertex));
@@ -177,13 +176,13 @@ void Multi::StartDivisionLines() {
     LinhasDivisorias->CopyConstants(&constants);   
 }
 
-void Multi::AddObjectToScene(Geometry& newObj, float scaleX, float scaleY, float scaleZ) {
+void Multi::AddObjectToScene(Geometry& newObj, float scaleX = 0.5f, float scaleY = 0.5f, float scaleZ = 0.5f) {
     graphics->ResetCommands();
     //Colocando cor nos vertices
     for (auto& v : newObj.vertices) {
         v.color = XMFLOAT4(DirectX::Colors::DimGray);
     }
-    vertices.push_back(newObj);
+    vertices.push_back(newObj); //Colocando no vetor de vertices que estou usando para mudar a cor
     Object obj; //Objeto
     XMStoreFloat4x4(&obj.world,
         XMMatrixScaling(scaleX, scaleY, scaleZ) *
@@ -253,7 +252,7 @@ void Multi::DeselectObject() {
     if (!scene.empty() && tab >= 0) {
         // Reverte a cor do objeto selecionado para a cor padrão
         for (auto& v : vertices[tab].vertices) {
-            v.color = XMFLOAT4(DirectX::Colors::DimGray); // ou a cor padrão que você deseja
+            v.color = XMFLOAT4(DirectX::Colors::DimGray); 
         }
 
         // Atualiza o buffer do objeto
@@ -330,6 +329,63 @@ void Multi::ObjectTranslate(float x, float y, float z){
 
     graphics->SubmitCommands();
 }
+
+void Multi::LoadObject(const std::string& filename) {
+    Geometry newObj; //Novo objeto que virá dos arquivos
+    
+    std::ifstream file(filename);
+
+    if (!file.is_open()) {
+        return;
+    }
+
+    std::string line;
+    while (getline(file, line)) {
+        std::istringstream iss(line);
+        string prefix;
+        iss >> prefix;
+
+        if (prefix == "v") {
+            // Vértices (posições)
+            Vertex position;
+            iss >> position.pos.x >> position.pos.y >> position.pos.z;
+            position.color = XMFLOAT4(DirectX::Colors::DimGray);
+            newObj.vertices.push_back(position);
+        }else if (prefix == "f") {
+            // Faces (índices de vértices)
+            uint32_t v1, v2, v3;
+            uint32_t n1, n2, n3;
+            char slash;
+            std::string faceStr;
+            getline(iss, faceStr);
+            std::istringstream faceStream(faceStr);
+
+            if (faceStr.find("//") != std::string::npos) {
+                faceStream >> v1 >> slash >> slash >> n1
+                    >> v2 >> slash >> slash >> n2
+                    >> v3 >> slash >> slash >> n3;
+                newObj.indices.push_back(v1 - 1);
+                newObj.indices.push_back(v2 - 1);
+                newObj.indices.push_back(v3 - 1);
+            }
+            else {
+                uint32_t vt1, vt2, vt3;
+                faceStream >> v1 >> slash >> vt1 >> slash >> n1
+                    >> v2 >> slash >> vt2 >> slash >> n2
+                    >> v3 >> slash >> vt3 >> slash >> n3;
+                newObj.indices.push_back(v1 - 1);
+                newObj.indices.push_back(v2 - 1);
+                newObj.indices.push_back(v3 - 1);
+            }
+        }
+    }
+
+    if (newObj.vertices.size() > 0) {
+        AddObjectToScene(newObj);
+    }
+
+    file.close();
+}
 // ------------------------------------------------------------------------------
 
 void Multi::Update()
@@ -341,34 +397,34 @@ void Multi::Update()
         //Adiciona uma BOX ao apertar a tecla B
         if (input->KeyPress('B') || input->KeyPress('b')) {
             Box newBox(2.0f, 2.0f, 2.0f);
-            AddObjectToScene(newBox, 0.5f, 0.5f, 0.5f);
+            AddObjectToScene(newBox);
         }
 
         //Tecla C para adicionar Cylinder
         if (input->KeyPress('C') || input->KeyPress('c')) {
             Cylinder newCylinder(1.0f, 0.5f, 3.0f, 20, 10); //Cria novo Cylinder
-            AddObjectToScene(newCylinder, 0.5f, 0.5f, 0.5f);
+            AddObjectToScene(newCylinder);
         }
 
         //Tecla S para adicionar Sphere
         if (input->KeyPress('S') || input->KeyPress('s')) {
             Sphere newSphere(1.0f, 20, 20); //Cria nova Sphere
-            AddObjectToScene(newSphere, 0.5f, 0.5f, 0.5f);
+            AddObjectToScene(newSphere);
         }
         //Tecla G para adicionar GeoSphere
         if (input->KeyPress('G') || input->KeyPress('g')) {
             GeoSphere newGeoSphere(1.0f, 20); //Cria nova GeoSphere
-            AddObjectToScene(newGeoSphere, 0.5f, 0.5f, 0.5f);
+            AddObjectToScene(newGeoSphere);
         }
         //Tecla P para adicionar Plane(Grid)
         if (input->KeyPress('P') || input->KeyPress('p')) {
             Grid newGrid(3.0f, 3.0f, 20, 20); //Cria novo Grid
-            AddObjectToScene(newGrid, 0.5f, 0.5f, 0.5f);
+            AddObjectToScene(newGrid);
         }
         //Tecla Q para adicionar Quad
         if (input->KeyPress('Q') || input->KeyPress('q')) {
             Quad newQuad(2.0f, 2.0f); //Cria novo Quad
-            AddObjectToScene(newQuad, 0.5f, 0.5f, 0.5f);
+            AddObjectToScene(newQuad);
         }
 
     }
@@ -476,11 +532,32 @@ void Multi::Update()
         }
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //Comando de mudança de visualização
-    if (input->KeyPress('V') || input->KeyPress('v')) {
-        viewport = !viewport; //Inverte booleano
-    }
+    //Comando de mudança de visualização e Carregamento de Objetos
+    {
+        if (input->KeyPress('V') || input->KeyPress('v')) {
+            viewport = !viewport; //Inverte booleano
+        }
 
+        if (input->KeyPress('1')) {
+            LoadObject("ball.obj");
+        }
+
+        if (input->KeyPress('2')) {
+            LoadObject("capsule.obj");
+        }
+
+        if (input->KeyPress('3')) {
+            LoadObject("house.obj");
+        }
+
+        if (input->KeyPress('4')) {
+            LoadObject("monkey.obj");
+        }
+
+        if (input->KeyPress('5')) {
+            LoadObject("thorus.obj");
+        }
+    }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // sai com o pressionamento da tecla ESC
     if (input->KeyPress(VK_ESCAPE))
@@ -558,15 +635,15 @@ void Multi::Update()
         XMMATRIX VUp = XMMatrixLookAtLH(posUp, targetUp, upUp);
 
         // matriz de visualização ortográfica para a visão frontal
-        XMVECTOR posFront = XMVectorSet(0, 0, -10, 1); // Alterado para -10 em X
+        XMVECTOR posFront = XMVectorSet(0, 0, -10, 1); 
         XMVECTOR targetFront = XMVectorZero();
-        XMVECTOR upFront = XMVectorSet(0, 1, 0, 0); // Mantido como (0, 1, 0)
+        XMVECTOR upFront = XMVectorSet(0, 1, 0, 0); 
         XMMATRIX VFront = XMMatrixLookAtLH(posFront, targetFront, upFront);
 
         // matriz de visualização ortográfica para a visão direita
-        XMVECTOR posSide = XMVectorSet(10, 0, 0, 1); // Alterado para 10 em X
+        XMVECTOR posSide = XMVectorSet(10, 0, 0, 1); 
         XMVECTOR targetSide = XMVectorZero();
-        XMVECTOR upSide = XMVectorSet(0, 1, 0, 0); // Mantido como (0, 1, 0)
+        XMVECTOR upSide = XMVectorSet(0, 1, 0, 0); 
         XMMATRIX VSide = XMMatrixLookAtLH(posSide, targetSide, upSide);
 
         // ajusta o buffer constante de cada objeto
@@ -617,6 +694,7 @@ void Multi::Draw()
 {
     // limpa o backbuffer
     graphics->Clear(pipelineState[0]);
+    
     if (!viewport) {
         // desenha objetos da cena
         for (auto& obj : scene)
@@ -641,7 +719,7 @@ void Multi::Draw()
         }
     }
     else {
-        graphics->CommandList()->SetPipelineState(pipelineState[1]);
+        graphics->CommandList()->SetPipelineState(pipelineState[1]); //Seta Pipeline que desenha linhas
         ID3D12DescriptorHeap* descriptorHeapLinhas = LinhasDivisorias->ConstantBufferHeap();
         graphics->CommandList()->SetDescriptorHeaps(1, &descriptorHeapLinhas);
         graphics->CommandList()->SetGraphicsRootSignature(rootSignature);
@@ -659,8 +737,8 @@ void Multi::Draw()
             0,
             0);
 
-        graphics->CommandList()->SetPipelineState(pipelineState[0]);
-        for (int i{}; i < 4; i++) {
+        graphics->CommandList()->SetPipelineState(pipelineState[0]); //Volta para triangulos
+        for (int i{}; i < 4; i++) { //For que passara pelos indices do ConstantBuffer que guardam as visões diferentes
 
             graphics->CommandList()->RSSetViewports(1, &views[i]);
 
@@ -856,7 +934,7 @@ void Multi::BuildPipelineState()
     pso.SampleDesc.Quality = graphics->Quality();
     graphics->Device()->CreateGraphicsPipelineState(&pso, IID_PPV_ARGS(&pipelineState[0]));
 
-    pso.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+    pso.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE; //Nova topologia para o segundo pipeline
     graphics->Device()->CreateGraphicsPipelineState(&pso, IID_PPV_ARGS(&pipelineState[1]));
 
     vertexShader->Release();
