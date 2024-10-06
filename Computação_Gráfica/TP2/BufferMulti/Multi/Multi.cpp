@@ -200,10 +200,11 @@ void Multi::AddObjectToScene(Geometry& newObj, float scaleX = 0.5f, float scaleY
 
 void Multi::DeleteObjectToScene() {
     graphics->ResetCommands();
-    
-    scene.erase(scene.begin() + tab);
-    vertices.erase(vertices.begin() + tab);
-    tab = -1;
+    if (scene.size() > 0) {
+        scene.erase(scene.begin() + tab);
+        vertices.erase(vertices.begin() + tab);
+        tab = -1;
+    }
     graphics->SubmitCommands();
 }
 
