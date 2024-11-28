@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ClientesEstrela" type="CompoundRunConfigurationType">
+    <toRun name="Client1" type="Application" />
+    <toRun name="Client2" type="Application" />
+    <toRun name="Client3" type="Application" />
+    <toRun name="Client4" type="Application" />
+    <method v="2" />
+  </configuration>
+</component>

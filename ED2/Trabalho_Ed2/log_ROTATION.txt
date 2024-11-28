@@ -1,0 +1,330 @@
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 12345678901
+Nó antigo - nome: Whesley
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 23456789012
+Nó novo - nome: Whesley
+Nó novo - Chave - DIREITA: 34567890123
+Nó novo - Chave - ESQUERDA: 12345678901
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 34567890123
+Nó antigo - nome: Carlos
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 45678901234
+Nó novo - nome: Carlos
+Nó novo - Chave - DIREITA: 56789012345
+Nó novo - Chave - ESQUERDA: 34567890123
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 23456789012
+Nó antigo - nome: Ana
+Nó antigo - Chave - DIREITA: 34567890123
+Nó antigo - Chave - ESQUERDA: 12345678901
+Nó novo - Chave: 45678901234
+Nó novo - nome: Ana
+Nó novo - Chave - DIREITA: 56789012345
+Nó novo - Chave - ESQUERDA: 23456789012
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 56789012345
+Nó antigo - nome: Gabriel
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 67890123456
+Nó novo - nome: Gabriel
+Nó novo - Chave - DIREITA: 78901234567
+Nó novo - Chave - ESQUERDA: 56789012345
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 78901234567
+Nó antigo - nome: Lucas
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 89012345678
+Nó novo - nome: Lucas
+Nó novo - Chave - DIREITA: 90123456789
+Nó novo - Chave - ESQUERDA: 78901234567
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 1234567890
+Nó antigo - nome: Olivia
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 11223344556
+Nó novo - nome: Olivia
+Nó novo - Chave - DIREITA: NULL
+Nó novo - Chave - ESQUERDA: 1234567890
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: DIREITA
+Nó antigo - Chave: 12345678901
+Nó antigo - nome: Whesley
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 11223344556
+Nó novo - nome: Whesley
+Nó novo - Chave - DIREITA: 12345678901
+Nó novo - Chave - ESQUERDA: 1234567890
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 11223344556
+Nó antigo - nome: Paul
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: 1234567890
+Nó novo - Chave: 12345678901
+Nó novo - nome: Paul
+Nó novo - Chave - DIREITA: 22334455667
+Nó novo - Chave - ESQUERDA: 11223344556
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: DIREITA
+Nó antigo - Chave: 23456789012
+Nó antigo - nome: Ana
+Nó antigo - Chave - DIREITA: 34567890123
+Nó antigo - Chave - ESQUERDA: 22334455667
+Nó novo - Chave: 12345678901
+Nó novo - nome: Ana
+Nó novo - Chave - DIREITA: 23456789012
+Nó novo - Chave - ESQUERDA: 11223344556
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: DIREITA
+Nó antigo - Chave: 11223344556
+Nó antigo - nome: Paul
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 1234567890
+Nó novo - nome: Paul
+Nó novo - Chave - DIREITA: 11223344556
+Nó novo - Chave - ESQUERDA: 112233445
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 12345678901
+Nó antigo - nome: Whesley
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 23456789012
+Nó novo - nome: Whesley
+Nó novo - Chave - DIREITA: 34567890123
+Nó novo - Chave - ESQUERDA: 12345678901
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 34567890123
+Nó antigo - nome: Carlos
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 45678901234
+Nó novo - nome: Carlos
+Nó novo - Chave - DIREITA: 56789012345
+Nó novo - Chave - ESQUERDA: 34567890123
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 23456789012
+Nó antigo - nome: Ana
+Nó antigo - Chave - DIREITA: 34567890123
+Nó antigo - Chave - ESQUERDA: 12345678901
+Nó novo - Chave: 45678901234
+Nó novo - nome: Ana
+Nó novo - Chave - DIREITA: 56789012345
+Nó novo - Chave - ESQUERDA: 23456789012
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 56789012345
+Nó antigo - nome: Gabriel
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 67890123456
+Nó novo - nome: Gabriel
+Nó novo - Chave - DIREITA: 78901234567
+Nó novo - Chave - ESQUERDA: 56789012345
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 78901234567
+Nó antigo - nome: Lucas
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 89012345678
+Nó novo - nome: Lucas
+Nó novo - Chave - DIREITA: 90123456789
+Nó novo - Chave - ESQUERDA: 78901234567
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 1234567890
+Nó antigo - nome: Olivia
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 11223344556
+Nó novo - nome: Olivia
+Nó novo - Chave - DIREITA: NULL
+Nó novo - Chave - ESQUERDA: 1234567890
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: DIREITA
+Nó antigo - Chave: 12345678901
+Nó antigo - nome: Whesley
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 11223344556
+Nó novo - nome: Whesley
+Nó novo - Chave - DIREITA: 12345678901
+Nó novo - Chave - ESQUERDA: 1234567890
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 11223344556
+Nó antigo - nome: Paul
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: 1234567890
+Nó novo - Chave: 12345678901
+Nó novo - nome: Paul
+Nó novo - Chave - DIREITA: 22334455667
+Nó novo - Chave - ESQUERDA: 11223344556
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: DIREITA
+Nó antigo - Chave: 23456789012
+Nó antigo - nome: Ana
+Nó antigo - Chave - DIREITA: 34567890123
+Nó antigo - Chave - ESQUERDA: 22334455667
+Nó novo - Chave: 12345678901
+Nó novo - nome: Ana
+Nó novo - Chave - DIREITA: 23456789012
+Nó novo - Chave - ESQUERDA: 11223344556
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: DIREITA
+Nó antigo - Chave: 11223344556
+Nó antigo - nome: Paul
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 1234567890
+Nó novo - nome: Paul
+Nó novo - Chave - DIREITA: 11223344556
+Nó novo - Chave - ESQUERDA: 112233445
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 12345678901
+Nó antigo - nome: Whesley
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 23456789012
+Nó novo - nome: Whesley
+Nó novo - Chave - DIREITA: 34567890123
+Nó novo - Chave - ESQUERDA: 12345678901
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 34567890123
+Nó antigo - nome: Carlos
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 45678901234
+Nó novo - nome: Carlos
+Nó novo - Chave - DIREITA: 56789012345
+Nó novo - Chave - ESQUERDA: 34567890123
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 23456789012
+Nó antigo - nome: Ana
+Nó antigo - Chave - DIREITA: 34567890123
+Nó antigo - Chave - ESQUERDA: 12345678901
+Nó novo - Chave: 45678901234
+Nó novo - nome: Ana
+Nó novo - Chave - DIREITA: 56789012345
+Nó novo - Chave - ESQUERDA: 23456789012
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 56789012345
+Nó antigo - nome: Gabriel
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 67890123456
+Nó novo - nome: Gabriel
+Nó novo - Chave - DIREITA: 78901234567
+Nó novo - Chave - ESQUERDA: 56789012345
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 78901234567
+Nó antigo - nome: Lucas
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 89012345678
+Nó novo - nome: Lucas
+Nó novo - Chave - DIREITA: 90123456789
+Nó novo - Chave - ESQUERDA: 78901234567
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 1234567890
+Nó antigo - nome: Olivia
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 11223344556
+Nó novo - nome: Olivia
+Nó novo - Chave - DIREITA: NULL
+Nó novo - Chave - ESQUERDA: 1234567890
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: DIREITA
+Nó antigo - Chave: 12345678901
+Nó antigo - nome: Whesley
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 11223344556
+Nó novo - nome: Whesley
+Nó novo - Chave - DIREITA: 12345678901
+Nó novo - Chave - ESQUERDA: 1234567890
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: ESQUERDA
+Nó antigo - Chave: 11223344556
+Nó antigo - nome: Paul
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: 1234567890
+Nó novo - Chave: 12345678901
+Nó novo - nome: Paul
+Nó novo - Chave - DIREITA: 22334455667
+Nó novo - Chave - ESQUERDA: 11223344556
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: DIREITA
+Nó antigo - Chave: 23456789012
+Nó antigo - nome: Ana
+Nó antigo - Chave - DIREITA: 34567890123
+Nó antigo - Chave - ESQUERDA: 22334455667
+Nó novo - Chave: 12345678901
+Nó novo - nome: Ana
+Nó novo - Chave - DIREITA: 23456789012
+Nó novo - Chave - ESQUERDA: 11223344556
+-----------------------------------------------------------
+-----------------------------------------------------------
+Rotação realizada: DIREITA
+Nó antigo - Chave: 11223344556
+Nó antigo - nome: Paul
+Nó antigo - Chave - DIREITA: NULL
+Nó antigo - Chave - ESQUERDA: NULL
+Nó novo - Chave: 1234567890
+Nó novo - nome: Paul
+Nó novo - Chave - DIREITA: 11223344556
+Nó novo - Chave - ESQUERDA: 112233445
+-----------------------------------------------------------
